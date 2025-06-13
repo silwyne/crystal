@@ -7,7 +7,7 @@ import (
 
 type JobRunner struct {
 	sourceFunction    functions.SourceFunction
-	transformFunction functions.TransformationFunction
+	transformFunction functions.MapFunction
 	sinkFunction      functions.SinkFunction
 }
 
@@ -22,7 +22,7 @@ func NewJobRunner(input functions.AllJobInterfaces) JobRunner {
 func (j JobRunner) Run() {
 	for {
 		data := j.sourceFunction.PollData()
-		transformed := j.transformFunction.Transform(data)
+		transformed := j.transformFunction.Map(data)
 		j.sinkFunction.Sink(transformed)
 
 		// simulation

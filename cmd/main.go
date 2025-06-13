@@ -10,12 +10,12 @@ import (
 type JobContainer struct{}
 
 func (j JobContainer) PollData() interface{} {
-	mySimpleData := "source: " + time.Now().String()
+	mySimpleData := "source: " + time.Now().Local().String()
 	return mySimpleData
 }
 
-func (j JobContainer) Transform(input interface{}) interface{} {
-	stringResult := input.(string) + ", transform: " + time.Now().String()
+func (j JobContainer) Map(input interface{}) interface{} {
+	stringResult := input.(string) + ", transform: " + time.Now().Local().String()
 	return stringResult
 }
 

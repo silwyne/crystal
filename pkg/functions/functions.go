@@ -2,12 +2,12 @@ package functions
 
 type AllJobInterfaces interface {
 	SourceFunction
-	TransformationFunction
+	MapFunction
 	SinkFunction
 }
 
-type TransformationFunction interface {
-	Transform(input interface{}) interface{}
+type MapFunction interface {
+	Map(input interface{}) interface{}
 }
 
 type SourceFunction interface {
