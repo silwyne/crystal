@@ -6,58 +6,49 @@ import (
 )
 
 type DataContainer struct {
-	Transformations []interface{}
+	Transformations []functions.Transformation
 }
 
 func FromSource(source functions.SourceFunction) DataContainer {
-	return DataContainer{
-		Transformations: []interface{}{source},
-	}
+	return DataContainer{}.addTransformation(functions.SourceTransformation{Function: source})
 }
 
 func (d DataContainer) Map(mapper functions.MapFunction) DataContainer {
-	return d.addTransformation(mapper)
+	return d.addTransformation(functions.MapTransformation{Function: mapper})
 }
 
 func (d DataContainer) Sink(sinker functions.SinkFunction) DataContainer {
-	return d.addTransformation(sinker)
+	return d.addTransformation(functions.SinkTransformation{Function: sinker})
 }
 
-func (d DataContainer) addTransformation(transformation interface{}) DataContainer {
+func (d DataContainer) addTransformation(transformation functions.Transformation) DataContainer {
 	return DataContainer{
 		Transformations: append(d.Transformations, transformation),
 	}
 }
 
 func (d DataContainer) Run() {
-	// Find the source function
 	if len(d.Transformations) == 0 {
-		return
+		panic("No transformations in pipeline")
 	}
-	source, ok := d.Transformations[0].(functions.SourceFunction)
-	if !ok {
-		panic("First transformation must be a SourceFunction")
+	if _, ok := d.Transformations[0].(functions.SourceTransformation); !ok {
+		panic("First transformation must be a source function")
 	}
+	sourceTransformation := d.Transformations[0]
 
 	for {
-		// Get data from the source
-		data, ok := source()
+		data, ok := sourceTransformation.Apply(nil)
 		if !ok {
-			break // No more data
+			break
 		}
-
-		// Pass data through all transformations (except source)
-		var current interface{} = data
-		for _, t := range d.Transformations[1:] {
-			switch fn := t.(type) {
-			case functions.MapFunction:
-				current = fn(current)
-			case functions.SinkFunction:
-				fn(current)
+		current := data
+		for _, t := range d.Transformations[1:] { // Skip the source
+			var cont bool
+			current, cont = t.Apply(current)
+			if !cont {
+				break
 			}
 		}
-
-		// simulation
 		time.Sleep(time.Second)
 	}
 }
