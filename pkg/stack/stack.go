@@ -3,13 +3,28 @@ package stack
 import (
 	"process-engine/pkg/container"
 	"process-engine/pkg/functions"
+	"sync"
 )
 
-func FromSource(source functions.SourceFunction) container.DataContainer {
+type DataStack struct {
+	parallelism int
+}
+
+func NewDataStack(parallelism int) DataStack {
+	if parallelism < 1 {
+		panic("parallelism can't be less than 1")
+	}
+	return DataStack{
+		parallelism: parallelism,
+	}
+}
+
+func (d DataStack) FromSource(source functions.SourceFunction) container.DataContainer {
 	return container.DataContainer{}.AddTransformation(functions.SourceTransformation{Function: source})
 }
 
-func Execute(container container.DataContainer) {
+func (d DataStack) Execute(container container.DataContainer) {
+
 	transformations := container.Transformations
 
 	if len(transformations) == 0 {
@@ -18,15 +33,28 @@ func Execute(container container.DataContainer) {
 	if _, ok := transformations[0].(functions.SourceTransformation); !ok {
 		panic("First transformation must be a source function")
 	}
-	sourceTransformation := transformations[0]
 
+	runMultiThread(transformations, d.parallelism)
+}
+
+func runMultiThread(transformations []functions.Transformation, parallelism int) {
+	var wg sync.WaitGroup
+	for i := 0; i < parallelism; i++ {
+		wg.Add(1)
+		go executeTransformationChain(transformations)
+	}
+	wg.Wait()
+}
+
+func executeTransformationChain(transformations []functions.Transformation) {
+	sourceTransformation := transformations[0]
 	for {
 		data, ok := sourceTransformation.Apply(nil)
 		if !ok {
 			break
 		}
 		current := data
-		for _, t := range transformations[1:] { // Skip the source
+		for _, t := range transformations[1:] {
 			var cont bool
 			current, cont = t.Apply(current)
 			if !cont {

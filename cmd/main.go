@@ -2,11 +2,17 @@ package main
 
 import (
 	"fmt"
+	"process-engine/pkg/container"
 	"process-engine/pkg/stack"
 	"time"
 )
 
-func main() {
+var (
+	PARALLELISM = 1
+	myDataStack = stack.NewDataStack(PARALLELISM)
+)
+
+func createContainer() container.DataContainer {
 	source := func() (interface{}, bool) {
 		mySimpleData := "source: " + time.Now().Local().String()
 		return mySimpleData, true
@@ -23,6 +29,15 @@ func main() {
 		return true
 	}
 
-	container := stack.FromSource(source).Map(mapper).Sink(sinker)
-	stack.Execute(container)
+	container := myDataStack.FromSource(source).Map(mapper).Sink(sinker)
+
+	return container
+}
+
+func main() {
+	// making a container
+	container := createContainer()
+
+	// running the container
+	myDataStack.Execute(container)
 }
