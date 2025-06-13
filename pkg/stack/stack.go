@@ -34,12 +34,12 @@ func (d DataStack) Execute(container container.DataContainer) {
 		panic("First transformation must be a source function")
 	}
 
-	runMultiThread(transformations, d.parallelism)
+	d.runChainInParallel(transformations)
 }
 
-func runMultiThread(transformations []functions.Transformation, parallelism int) {
+func (d DataStack) runChainInParallel(transformations []functions.Transformation) {
 	var wg sync.WaitGroup
-	for i := 0; i < parallelism; i++ {
+	for i := 0; i < d.parallelism; i++ {
 		wg.Add(1)
 		go executeTransformationChain(transformations)
 	}
