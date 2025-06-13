@@ -1,11 +1,12 @@
 package functions
 
-type MapFunction func(interface{}) interface{}
+type MapFunction func(interface{}) (interface{}, bool)
 
 type MapTransformation struct {
 	Function MapFunction
 }
 
 func (m MapTransformation) Apply(data interface{}) (interface{}, bool) {
-	return m.Function(data), true
+	result, boolResult := m.Function(data)
+	return result, boolResult
 }

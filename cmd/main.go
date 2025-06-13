@@ -12,16 +12,16 @@ func main() {
 		return mySimpleData, true
 	}
 
-	mapper := func(input interface{}) interface{} {
+	mapper := func(input interface{}) (interface{}, bool) {
 		stringResult := input.(string) + ", transform: " + time.Now().Local().String()
-		return stringResult
+		return stringResult, true
 	}
 
-	sinker := func(input interface{}) {
+	sinker := func(input interface{}) bool {
 		fmt.Println(input.(string))
+		return true
 	}
 
 	container := stack.FromSource(source).Map(mapper).Sink(sinker)
-
 	stack.Execute(container)
 }

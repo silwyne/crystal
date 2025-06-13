@@ -1,12 +1,12 @@
 package functions
 
-type SinkFunction func(interface{})
+type SinkFunction func(interface{}) bool
 
 type SinkTransformation struct {
 	Function SinkFunction
 }
 
 func (s SinkTransformation) Apply(data interface{}) (interface{}, bool) {
-	s.Function(data)
-	return nil, true
+	resultBool := s.Function(data)
+	return nil, resultBool
 }
