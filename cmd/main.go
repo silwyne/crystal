@@ -19,6 +19,7 @@ func main() {
 
 	sinker := func(input interface{}) bool {
 		fmt.Println(input.(string))
+		time.Sleep(time.Second) // for testing
 		return true
 	}
 

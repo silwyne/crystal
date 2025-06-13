@@ -3,7 +3,6 @@ package stack
 import (
 	"process-engine/pkg/container"
 	"process-engine/pkg/functions"
-	"time"
 )
 
 func FromSource(source functions.SourceFunction) container.DataContainer {
@@ -34,6 +33,5 @@ func Execute(container container.DataContainer) {
 				break
 			}
 		}
-		time.Sleep(time.Second)
 	}
 }
