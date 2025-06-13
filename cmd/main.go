@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"process-engine/pkg/container"
+	"process-engine/pkg/stack"
 	"time"
 )
 
@@ -21,6 +21,7 @@ func main() {
 		fmt.Println(input.(string))
 	}
 
-	container := container.FromSource(source).Map(mapper).Sink(sinker)
-	container.Run()
+	container := stack.FromSource(source).Map(mapper).Sink(sinker)
+
+	stack.Execute(container)
 }
