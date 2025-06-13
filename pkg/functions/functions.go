@@ -1,19 +1,7 @@
 package functions
 
-type AllJobInterfaces interface {
-	SourceFunction
-	MapFunction
-	SinkFunction
-}
+type SourceFunction func() (interface{}, bool)
 
-type MapFunction interface {
-	Map(input interface{}) interface{}
-}
+type MapFunction func(interface{}) interface{}
 
-type SourceFunction interface {
-	PollData() interface{}
-}
-
-type SinkFunction interface {
-	Sink(input interface{})
-}
+type SinkFunction func(interface{})

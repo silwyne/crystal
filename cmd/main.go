@@ -2,29 +2,25 @@ package main
 
 import (
 	"fmt"
-	"process-engine/pkg/core"
+	"process-engine/pkg/container"
 	"time"
 )
 
-// region Defining Job
-type JobContainer struct{}
-
-func (j JobContainer) PollData() interface{} {
-	mySimpleData := "source: " + time.Now().Local().String()
-	return mySimpleData
-}
-
-func (j JobContainer) Map(input interface{}) interface{} {
-	stringResult := input.(string) + ", transform: " + time.Now().Local().String()
-	return stringResult
-}
-
-func (j JobContainer) Sink(input interface{}) {
-	fmt.Println(input.(string))
-}
-
 func main() {
-	JobContainer := JobContainer{}
-	jobRunner := core.NewJobRunner(JobContainer)
-	jobRunner.Run()
+	source := func() (interface{}, bool) {
+		mySimpleData := "source: " + time.Now().Local().String()
+		return mySimpleData, true
+	}
+
+	mapper := func(input interface{}) interface{} {
+		stringResult := input.(string) + ", transform: " + time.Now().Local().String()
+		return stringResult
+	}
+
+	sinker := func(input interface{}) {
+		fmt.Println(input.(string))
+	}
+
+	container := container.FromSource(source).Map(mapper).Sink(sinker)
+	container.Run()
 }
