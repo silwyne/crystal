@@ -15,6 +15,7 @@ var (
 func createContainer() container.DataContainer {
 	source := func() (interface{}, bool) {
 		mySimpleData := "source: " + time.Now().Local().String()
+		time.Sleep(time.Second)
 		return mySimpleData, true
 	}
 
@@ -25,7 +26,6 @@ func createContainer() container.DataContainer {
 
 	sinker := func(input interface{}) bool {
 		fmt.Println(input.(string))
-		time.Sleep(time.Second) // for testing
 		return true
 	}
 
