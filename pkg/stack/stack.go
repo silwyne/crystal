@@ -47,14 +47,9 @@ func (d DataStack) runChainInParallel(transformations []functions.Transformation
 }
 
 func executeTransformationChain(transformations []functions.Transformation) {
-	sourceTransformation := transformations[0]
 	for {
-		data, ok := sourceTransformation.Apply(nil)
-		if !ok {
-			break
-		}
-		current := data
-		for _, t := range transformations[1:] {
+		var current interface{}
+		for _, t := range transformations {
 			var cont bool
 			current, cont = t.Apply(current)
 			if !cont {
