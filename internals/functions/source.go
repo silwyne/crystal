@@ -8,17 +8,12 @@ type SourceTransformation struct {
 	Function SourceFunction
 }
 
-func (s SourceTransformation) Apply(data interface{}) (interface{}, bool) {
-	result, boolResult := s.Function()
-	return result, boolResult
-}
-
 func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for {
-			data, ok := s.Apply(nil)
+			data, ok := s.Function()
 			if !ok {
 				break
 			}
