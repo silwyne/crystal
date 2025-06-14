@@ -34,27 +34,76 @@ func (d DataStack) Execute(container container.DataContainer) {
 		panic("First transformation must be a source function")
 	}
 
-	d.runChainInParallel(transformations)
+	d.runOperatorInParallel(transformations)
 }
 
-func (d DataStack) runChainInParallel(transformations []functions.Transformation) {
+func (d DataStack) runOperatorInParallel(transformations []functions.Transformation) {
 	var wg sync.WaitGroup
+	var channel_holder []chan interface{}
+	wg.Add(d.parallelism)
 	for i := 0; i < d.parallelism; i++ {
-		wg.Add(1)
-		go executeTransformationChain(transformations)
+		go executeTransformations(&wg, transformations, channel_holder)
 	}
 	wg.Wait()
 }
 
-func executeTransformationChain(transformations []functions.Transformation) {
-	for {
-		var current interface{}
-		for _, t := range transformations {
-			var cont bool
-			current, cont = t.Apply(current)
-			if !cont {
-				break
+func executeTransformations(
+	wg *sync.WaitGroup,
+	transformations []functions.Transformation,
+	channel_holder []chan interface{}) {
+
+	for id, transformation := range transformations {
+		switch transformation.GetResultStreamType() {
+		case functions.SourceStream:
+			{
+				source_channel := make(chan interface{})
+				channel_holder = append(channel_holder, source_channel)
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					for {
+						data, ok := transformation.Apply(nil)
+						if !ok {
+							break
+						}
+						source_channel <- data
+					}
+					close(source_channel)
+				}()
 			}
+
+		case functions.SingleOutputStream:
+			{
+				source_channel := channel_holder[id-1]
+				result_channel := make(chan interface{})
+				channel_holder = append(channel_holder, result_channel)
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					for input := range source_channel {
+						data, ok := transformation.Apply(input)
+						if ok {
+							result_channel <- data
+						}
+					}
+					close(result_channel)
+				}()
+			}
+		case functions.SinkStream:
+			{
+				source_channel := channel_holder[id-1]
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					for input := range source_channel {
+						_, ok := transformation.Apply(input)
+						if !ok {
+							panic("error while sinking")
+						}
+					}
+				}()
+			}
+
 		}
 	}
 }
