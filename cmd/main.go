@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"process-engine/internals/container"
+	"process-engine/internals/functions"
 	"process-engine/internals/stack"
 	"time"
 )
@@ -13,20 +14,26 @@ var (
 )
 
 func createContainer() container.DataContainer {
-	source := func() (interface{}, bool) {
-		mySimpleData := "source: " + time.Now().Local().String()
-		time.Sleep(time.Second)
-		return mySimpleData, true
+	source := functions.SourceTransformation{
+		Function: func() (interface{}, bool) {
+			mySimpleData := "source: " + time.Now().Local().String()
+			time.Sleep(time.Second)
+			return mySimpleData, true
+		},
 	}
 
-	mapper := func(input interface{}) (interface{}, bool) {
-		stringResult := input.(string) + ", transform: " + time.Now().Local().String()
-		return stringResult, true
+	mapper := functions.MapTransformation{
+		Function: func(input interface{}) (interface{}, bool) {
+			stringResult := input.(string) + ", transform: " + time.Now().Local().String()
+			return stringResult, true
+		},
 	}
 
-	sinker := func(input interface{}) bool {
-		fmt.Println(input.(string))
-		return true
+	sinker := functions.SinkTransformation{
+		Function: func(input interface{}) bool {
+			fmt.Println(input.(string))
+			return true
+		},
 	}
 
 	container := myDataStack.FromSource(source).Map(mapper).Sink(sinker)

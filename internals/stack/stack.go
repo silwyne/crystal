@@ -19,8 +19,8 @@ func NewDataStack(parallelism int) DataStack {
 	}
 }
 
-func (d DataStack) FromSource(source functions.SourceFunction) container.DataContainer {
-	return container.DataContainer{}.AddTransformation(functions.SourceTransformation{Function: source})
+func (d DataStack) FromSource(transformation functions.SourceTransformation) container.DataContainer {
+	return container.DataContainer{}.AddTransformation(transformation)
 }
 
 func (d DataStack) Execute(container container.DataContainer) {

@@ -8,12 +8,12 @@ type DataContainer struct {
 	Transformations []functions.Transformation
 }
 
-func (d DataContainer) Map(mapper functions.MapFunction) DataContainer {
-	return d.AddTransformation(functions.MapTransformation{Function: mapper})
+func (d DataContainer) Map(mapper functions.MapTransformation) DataContainer {
+	return d.AddTransformation(mapper)
 }
 
-func (d DataContainer) Sink(sinker functions.SinkFunction) DataContainer {
-	return d.AddTransformation(functions.SinkTransformation{Function: sinker})
+func (d DataContainer) Sink(sinker functions.SinkTransformation) DataContainer {
+	return d.AddTransformation(sinker)
 }
 
 func (d DataContainer) AddTransformation(transformation functions.Transformation) DataContainer {
