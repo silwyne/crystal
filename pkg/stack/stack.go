@@ -72,7 +72,7 @@ func executeTransformations(
 				}()
 			}
 
-		case functions.SingleOutputStream:
+		case functions.MapStream:
 			{
 				source_channel := channel_holder[id-1]
 				result_channel := make(chan interface{})

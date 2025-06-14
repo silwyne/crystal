@@ -12,5 +12,5 @@ func (m MapTransformation) Apply(data interface{}) (interface{}, bool) {
 }
 
 func (m MapTransformation) GetResultStreamType() DataStreamType {
-	return SingleOutputStream
+	return MapStream
 }

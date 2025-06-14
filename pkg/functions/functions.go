@@ -3,9 +3,9 @@ package functions
 type DataStreamType string
 
 const (
-	SourceStream       DataStreamType = "SourceStream"
-	SingleOutputStream DataStreamType = "SingleOutputStream"
-	SinkStream         DataStreamType = "SinkStream"
+	SourceStream DataStreamType = "SourceStream"
+	MapStream    DataStreamType = "MapStream"
+	SinkStream   DataStreamType = "SinkStream"
 )
 
 type Transformation interface {
