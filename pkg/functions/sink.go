@@ -13,10 +13,6 @@ func (s SinkTransformation) Apply(data interface{}) (interface{}, bool) {
 	return nil, resultBool
 }
 
-func (m SinkTransformation) GetResultStreamType() DataStreamType {
-	return SinkStream
-}
-
 func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	wg.Add(1)
 	go func() {

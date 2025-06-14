@@ -13,10 +13,6 @@ func (m MapTransformation) Apply(data interface{}) (interface{}, bool) {
 	return result, boolResult
 }
 
-func (m MapTransformation) GetResultStreamType() DataStreamType {
-	return MapStream
-}
-
 func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	result_channel := make(chan interface{})
 	wg.Add(1)

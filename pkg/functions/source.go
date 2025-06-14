@@ -13,10 +13,6 @@ func (s SourceTransformation) Apply(data interface{}) (interface{}, bool) {
 	return result, boolResult
 }
 
-func (s SourceTransformation) GetResultStreamType() DataStreamType {
-	return SourceStream
-}
-
 func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	wg.Add(1)
 	go func() {
