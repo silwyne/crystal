@@ -10,3 +10,7 @@ func (s SourceTransformation) Apply(data interface{}) (interface{}, bool) {
 	result, boolResult := s.Function()
 	return result, boolResult
 }
+
+func (m SourceTransformation) GetResultStreamType() DataStreamType {
+	return SourceStream
+}

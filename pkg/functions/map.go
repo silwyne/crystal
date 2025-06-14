@@ -10,3 +10,7 @@ func (m MapTransformation) Apply(data interface{}) (interface{}, bool) {
 	result, boolResult := m.Function(data)
 	return result, boolResult
 }
+
+func (m MapTransformation) GetResultStreamType() DataStreamType {
+	return SingleOutputStream
+}
