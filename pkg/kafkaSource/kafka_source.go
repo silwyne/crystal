@@ -1,4 +1,4 @@
-package kafka
+package kafkaSource
 
 import (
 	"context"
@@ -9,13 +9,14 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type KafkaSource struct {
-	reader *kafka.Reader
-	ctx    context.Context
+type KafkaSourceTransformation struct {
+	Function functions.SourceFunction
+	reader   *kafka.Reader
+	ctx      context.Context
 }
 
-func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
-	return &KafkaSource{
+func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSourceTransformation {
+	return &KafkaSourceTransformation{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: brokers,
 			Topic:   topic,
@@ -25,14 +26,14 @@ func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
 	}
 }
 
-func (s KafkaSource) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (s KafkaSourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	st := functions.SourceTransformation{
-		Function: s.readKafkaMessage,
+		Function: s.next,
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (k *KafkaSource) readKafkaMessage() (interface{}, bool) {
+func (k *KafkaSourceTransformation) next() (interface{}, bool) {
 	m, err := k.reader.ReadMessage(k.ctx)
 	if err != nil {
 		log.Printf("Kafka read error: %v", err)

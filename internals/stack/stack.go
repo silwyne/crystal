@@ -19,7 +19,7 @@ func NewDataStack(parallelism int) DataStack {
 	}
 }
 
-func (d DataStack) FromSource(transformation functions.SourceTransformation) container.DataContainer {
+func (d DataStack) FromSource(transformation functions.Transformation) container.DataContainer {
 	return container.DataContainer{}.AddTransformation(transformation)
 }
 
@@ -29,9 +29,6 @@ func (d DataStack) Execute(container container.DataContainer) {
 
 	if len(transformations) == 0 {
 		panic("No transformations in pipeline")
-	}
-	if _, ok := transformations[0].(functions.SourceTransformation); !ok {
-		panic("First transformation must be a source function")
 	}
 
 	d.runOperatorInParallel(transformations)
