@@ -1,7 +1,7 @@
 package container
 
 import (
-	"process-engine/pkg/functions"
+	"process-engine/internals/functions"
 )
 
 type DataContainer struct {

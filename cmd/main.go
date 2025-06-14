@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"process-engine/pkg/container"
-	"process-engine/pkg/stack"
+	"process-engine/internals/container"
+	"process-engine/internals/stack"
 	"time"
 )
 
