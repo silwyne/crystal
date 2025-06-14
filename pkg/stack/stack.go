@@ -53,57 +53,13 @@ func executeTransformations(
 	channel_holder []chan interface{}) {
 
 	for id, transformation := range transformations {
-		switch transformation.GetResultStreamType() {
-		case functions.SourceStream:
-			{
-				source_channel := make(chan interface{})
-				channel_holder = append(channel_holder, source_channel)
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					for {
-						data, ok := transformation.Apply(nil)
-						if !ok {
-							break
-						}
-						source_channel <- data
-					}
-					close(source_channel)
-				}()
-			}
-
-		case functions.MapStream:
-			{
-				source_channel := channel_holder[id-1]
-				result_channel := make(chan interface{})
-				channel_holder = append(channel_holder, result_channel)
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					for input := range source_channel {
-						data, ok := transformation.Apply(input)
-						if ok {
-							result_channel <- data
-						}
-					}
-					close(result_channel)
-				}()
-			}
-		case functions.SinkStream:
-			{
-				source_channel := channel_holder[id-1]
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					for input := range source_channel {
-						_, ok := transformation.Apply(input)
-						if !ok {
-							panic("error while sinking")
-						}
-					}
-				}()
-			}
-
+		var source_channel chan interface{}
+		if id == 0 {
+			source_channel = make(chan interface{})
+		} else {
+			source_channel = channel_holder[id-1]
 		}
+		result_channel := transformation.ExecuteTransformation(wg, source_channel)
+		channel_holder = append(channel_holder, result_channel)
 	}
 }
