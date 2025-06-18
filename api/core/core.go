@@ -1,7 +1,7 @@
-package stack
+package core
 
 import (
-	"process-engine/api/container"
+	"process-engine/api/datastream"
 	"process-engine/api/functions"
 	"sync"
 )
@@ -12,6 +12,10 @@ const (
 
 type DataStack struct {
 	configs StackConfig
+}
+
+type StackConfig struct {
+	Parallelism int
 }
 
 func NewDataStack() DataStack {
@@ -31,28 +35,24 @@ func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	return d
 }
 
-func (d DataStack) FromSource(transformation functions.Transformation) container.DataContainer {
-	operator := container.DataOperator{
+func (d DataStack) FromSource(transformation functions.Transformation) datastream.DataContainer {
+	operator := datastream.Operator{
 		Transformer: transformation,
 		Parallelism: d.configs.Parallelism,
 	}
-	return container.DataContainer{}.AddTransformation(operator)
+	return datastream.DataContainer{}.AddTransformation(operator)
 }
 
-func (d DataStack) Execute(container container.DataContainer) {
-
+func (d DataStack) Execute(container datastream.DataContainer) {
 	Operators := container.Operators
-
 	if len(Operators) == 0 {
 		panic("No transformations in pipeline")
 	}
 
 	var transformations []functions.Transformation
-
 	for _, operator := range Operators {
 		transformations = append(transformations, operator.Transformer)
 	}
-
 	d.runOperatorInParallel(transformations)
 }
 
@@ -67,10 +67,8 @@ func (d DataStack) runOperatorInParallel(transformations []functions.Transformat
 }
 
 func executeTransformations(
-	wg *sync.WaitGroup,
-	transformations []functions.Transformation,
+	wg *sync.WaitGroup, transformations []functions.Transformation,
 	channel_holder []chan interface{}) {
-
 	for id, transformation := range transformations {
 		var source_channel chan interface{}
 		if id == 0 {

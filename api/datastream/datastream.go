@@ -1,15 +1,24 @@
-package container
+package datastream
 
 import (
 	"process-engine/api/functions"
 )
 
 type DataContainer struct {
-	Operators []DataOperator
+	Operators []Operator
+}
+
+type Operator struct {
+	Transformer functions.Transformation
+	Parallelism int
+}
+
+func (o *Operator) SetParallelism(parallalism int) {
+	o.Parallelism = parallalism
 }
 
 func (d DataContainer) Map(mapper functions.MapTransformation) DataContainer {
-	operator := DataOperator{
+	operator := Operator{
 		Transformer: mapper,
 		Parallelism: 1,
 	}
@@ -17,14 +26,14 @@ func (d DataContainer) Map(mapper functions.MapTransformation) DataContainer {
 }
 
 func (d DataContainer) Sink(sinker functions.SinkTransformation) DataContainer {
-	operator := DataOperator{
+	operator := Operator{
 		Transformer: sinker,
 		Parallelism: 1,
 	}
 	return d.AddTransformation(operator)
 }
 
-func (d DataContainer) AddTransformation(operator DataOperator) DataContainer {
+func (d DataContainer) AddTransformation(operator Operator) DataContainer {
 	return DataContainer{
 		Operators: append(d.Operators, operator),
 	}

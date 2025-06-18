@@ -2,19 +2,19 @@ package main
 
 import (
 	"fmt"
-	"process-engine/api/container"
+	"process-engine/api/core"
+	"process-engine/api/datastream"
 	"process-engine/api/functions"
-	"process-engine/api/stack"
 	"process-engine/source/datagenerator"
 
 	"time"
 )
 
 var (
-	myDataStack stack.DataStack
+	myDataStack core.DataStack
 )
 
-func createContainer() container.DataContainer {
+func createContainer() datastream.DataContainer {
 	source := datagenerator.NewDataGenerator(func() (interface{}, bool) {
 		time.Sleep(time.Second) // simulate data rate
 		return "sourceTime: " + time.Now().Local().String(), true
@@ -42,7 +42,7 @@ func createContainer() container.DataContainer {
 }
 
 func main() {
-	myDataStack = stack.NewDataStack()
+	myDataStack = core.NewDataStack()
 
 	// change Parallelism from 1 to 2
 	myDataStack.SetParallelism(2)
