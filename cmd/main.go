@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	PARALLELISM = 1
-	myDataStack = stack.NewDataStack(PARALLELISM)
+	myDataStack stack.DataStack
 )
 
 func createContainer() container.DataContainer {
@@ -41,6 +40,11 @@ func createContainer() container.DataContainer {
 }
 
 func main() {
+	myDataStack = stack.NewDataStack()
+
+	// change Parallelism from 1 to 2
+	myDataStack.SetParallelism(2)
+
 	// making a container
 	container := createContainer()
 

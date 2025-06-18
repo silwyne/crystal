@@ -6,17 +6,26 @@ import (
 	"sync"
 )
 
+const (
+	detault_parallelism = 1
+)
+
 type DataStack struct {
 	parallelism int
 }
 
-func NewDataStack(parallelism int) DataStack {
+func NewDataStack() DataStack {
+	return DataStack{
+		parallelism: detault_parallelism,
+	}
+}
+
+func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	if parallelism < 1 {
 		panic("parallelism can't be less than 1")
 	}
-	return DataStack{
-		parallelism: parallelism,
-	}
+	d.parallelism = parallelism
+	return d
 }
 
 func (d DataStack) FromSource(transformation functions.Transformation) container.DataContainer {
