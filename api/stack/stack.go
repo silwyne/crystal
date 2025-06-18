@@ -11,12 +11,15 @@ const (
 )
 
 type DataStack struct {
-	parallelism int
+	configs StackConfig
 }
 
 func NewDataStack() DataStack {
+	configs := StackConfig{
+		Parallelism: detault_parallelism,
+	}
 	return DataStack{
-		parallelism: detault_parallelism,
+		configs: configs,
 	}
 }
 
@@ -24,20 +27,30 @@ func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	if parallelism < 1 {
 		panic("parallelism can't be less than 1")
 	}
-	d.parallelism = parallelism
+	d.configs.Parallelism = parallelism
 	return d
 }
 
 func (d DataStack) FromSource(transformation functions.Transformation) container.DataContainer {
-	return container.DataContainer{}.AddTransformation(transformation)
+	operator := container.DataOperator{
+		Transformer: transformation,
+		Parallelism: d.configs.Parallelism,
+	}
+	return container.DataContainer{}.AddTransformation(operator)
 }
 
 func (d DataStack) Execute(container container.DataContainer) {
 
-	transformations := container.Transformations
+	Operators := container.Operators
 
-	if len(transformations) == 0 {
+	if len(Operators) == 0 {
 		panic("No transformations in pipeline")
+	}
+
+	var transformations []functions.Transformation
+
+	for _, operator := range Operators {
+		transformations = append(transformations, operator.Transformer)
 	}
 
 	d.runOperatorInParallel(transformations)
@@ -46,8 +59,8 @@ func (d DataStack) Execute(container container.DataContainer) {
 func (d DataStack) runOperatorInParallel(transformations []functions.Transformation) {
 	var wg sync.WaitGroup
 	var channel_holder []chan interface{}
-	wg.Add(d.parallelism)
-	for i := 0; i < d.parallelism; i++ {
+	wg.Add(d.configs.Parallelism)
+	for i := 0; i < d.configs.Parallelism; i++ {
 		go executeTransformations(&wg, transformations, channel_holder)
 	}
 	wg.Wait()

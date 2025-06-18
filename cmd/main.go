@@ -34,7 +34,9 @@ func createContainer() container.DataContainer {
 		},
 	}
 
-	container := myDataStack.FromSource(source).Map(mapper).Sink(sinker)
+	container := myDataStack.FromSource(source) // with global parallelism which is 2
+	container = container.Map(mapper).SetParallelism(1)
+	container = container.Sink(sinker).SetParallelism(1)
 
 	return container
 }
