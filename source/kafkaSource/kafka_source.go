@@ -3,7 +3,7 @@ package kafkaSource
 import (
 	"context"
 	"log"
-	"process-engine/internals/functions"
+	"process-engine/api/functions"
 	"sync"
 
 	"github.com/segmentio/kafka-go"

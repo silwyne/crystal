@@ -1,8 +1,8 @@
 package stack
 
 import (
-	"process-engine/internals/container"
-	"process-engine/internals/functions"
+	"process-engine/api/container"
+	"process-engine/api/functions"
 	"sync"
 )
 

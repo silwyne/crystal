@@ -1,7 +1,7 @@
 package datagenerator
 
 import (
-	"process-engine/internals/functions"
+	"process-engine/api/functions"
 	"sync"
 )
 

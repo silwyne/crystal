@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"process-engine/internals/container"
-	"process-engine/internals/functions"
-	"process-engine/internals/stack"
-	"process-engine/pkg/source/datagenerator"
+	"process-engine/api/container"
+	"process-engine/api/functions"
+	"process-engine/api/stack"
+	"process-engine/source/datagenerator"
 
 	"time"
 )
