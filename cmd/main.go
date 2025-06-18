@@ -5,10 +5,9 @@ import (
 	"process-engine/internals/container"
 	"process-engine/internals/functions"
 	"process-engine/internals/stack"
-	"process-engine/pkg/kafkaSource"
-	"time"
+	"process-engine/pkg/datagenerator"
 
-	"github.com/segmentio/kafka-go"
+	"time"
 )
 
 var (
@@ -17,11 +16,14 @@ var (
 )
 
 func createContainer() container.DataContainer {
-	source := kafkaSource.NewKafkaSource([]string{"127.0.0.1:9092"}, "test-0", "test-group")
+	source := datagenerator.NewDataGenerator(func() (interface{}, bool) {
+		time.Sleep(time.Second) // simulate data rate
+		return "sourceTime: " + time.Now().Local().String(), true
+	})
 
 	mapper := functions.MapTransformation{
 		Function: func(input interface{}) (interface{}, bool) {
-			stringResult := string(input.(kafka.Message).Value) + ", transform: " + time.Now().Local().String()
+			stringResult := string(input.(string)) + ", transform: " + time.Now().Local().String()
 			return stringResult, true
 		},
 	}
