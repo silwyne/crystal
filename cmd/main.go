@@ -5,7 +5,7 @@ import (
 	"process-engine/internals/container"
 	"process-engine/internals/functions"
 	"process-engine/internals/stack"
-	"process-engine/pkg/datagenerator"
+	"process-engine/pkg/source/datagenerator"
 
 	"time"
 )
