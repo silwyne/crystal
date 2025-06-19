@@ -8,17 +8,13 @@ import (
 	"sync"
 )
 
-const (
-	DEFAULT_PARALLELISM = 1
-)
-
 type StreamEnvironment struct {
 	configs configuration.StreamConfig
 }
 
 func NewStreamEnvironment() *StreamEnvironment {
 	configs := configuration.StreamConfig{
-		GlobalParallelism: DEFAULT_PARALLELISM,
+		GlobalParallelism: configuration.DEFAULT_PARALLELISM,
 	}
 	return &StreamEnvironment{
 		configs: configs,

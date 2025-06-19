@@ -35,7 +35,7 @@ func exampleJob() *datastream.DataStream {
 
 func main() {
 	streamEnv = core.NewStreamEnvironment()
-	streamEnv.SetParallelism(10)
+	streamEnv.SetParallelism(1)
 
 	// making a container
 	stream := exampleJob()
