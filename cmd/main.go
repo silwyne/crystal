@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"process-engine/api/core"
 	"process-engine/api/datastream"
 	"process-engine/api/functions"
+	"process-engine/sink/consolesink"
 	"process-engine/source/datagenerator"
 
 	"time"
@@ -27,12 +27,7 @@ func createContainer() *datastream.DataContainer {
 		},
 	}
 
-	sinker := functions.SinkTransformation{
-		Function: func(input interface{}) bool {
-			fmt.Println(input.(string))
-			return true
-		},
-	}
+	sinker := consolesink.NewConsoleSinker()
 
 	container := myDataStack.FromSource(source).SetParallelism(3)
 	container = container.Map(mapper).SetParallelism(3)

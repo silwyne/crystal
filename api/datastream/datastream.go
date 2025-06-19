@@ -25,7 +25,7 @@ func (d *DataContainer) Map(mapper functions.MapTransformation) *DataContainer {
 	return result
 }
 
-func (d *DataContainer) Sink(sinker functions.SinkTransformation) *DataContainer {
+func (d *DataContainer) Sink(sinker functions.Transformation) *DataContainer {
 	result := d.AddTransformation(sinker)
 	return result
 }
