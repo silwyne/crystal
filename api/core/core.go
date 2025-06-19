@@ -16,34 +16,34 @@ type StreamEnvironment struct {
 	configs configuration.StreamConfig
 }
 
-func NewStreamEnvironment() StreamEnvironment {
+func NewStreamEnvironment() *StreamEnvironment {
 	configs := configuration.StreamConfig{
 		GlobalParallelism: DEFAULT_PARALLELISM,
 	}
-	return StreamEnvironment{
+	return &StreamEnvironment{
 		configs: configs,
 	}
 }
 
-func (d *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment {
+func (se *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment {
 	if parallelism < 1 {
 		panic("parallelism can't be less than 1")
 	}
-	d.configs.GlobalParallelism = parallelism
-	return d
+	se.configs.GlobalParallelism = parallelism
+	return se
 }
 
-func (d StreamEnvironment) FromSource(transformer transformation.Transformation) *datastream.DataStream {
+func (se *StreamEnvironment) FromSource(transformer transformation.Transformation) *datastream.DataStream {
 	if transformer.GetTransformationType() != transformation.SOURCE {
 		panic("FromSource only accepts Transformation of type SOURCE")
 	}
 	stream := datastream.DataStream{}
-	stream.SetConfigs(d.configs)
+	stream.SetConfigs(se.configs)
 	streamWithTransformation := stream.AddTransformation(transformer)
 	return streamWithTransformation
 }
 
-func (d StreamEnvironment) Execute(container *datastream.DataStream) {
+func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 	operators := container.Operators
 	if len(operators) == 0 {
 		panic("No transformations in pipeline")
@@ -53,15 +53,15 @@ func (d StreamEnvironment) Execute(container *datastream.DataStream) {
 	for _, operator := range operators {
 		transformations = append(transformations, operator.Transformer)
 	}
-	log.Printf("ignoring operators parallelism using global parallelism %v\n", d.configs.GlobalParallelism)
-	d.runOperatorInParallel(transformations)
+	log.Printf("ignoring operators parallelism using global parallelism %v\n", se.configs.GlobalParallelism)
+	se.runOperatorInParallel(transformations)
 }
 
-func (d StreamEnvironment) runOperatorInParallel(transformations []transformation.Transformation) {
+func (se *StreamEnvironment) runOperatorInParallel(transformations []transformation.Transformation) {
 	var wg sync.WaitGroup
 	var channel_holder []chan interface{}
-	wg.Add(d.configs.GlobalParallelism)
-	for range d.configs.GlobalParallelism {
+	wg.Add(se.configs.GlobalParallelism)
+	for range se.configs.GlobalParallelism {
 		go executeTransformations(&wg, transformations, channel_holder)
 	}
 	wg.Wait()

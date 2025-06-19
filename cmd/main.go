@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	streamEnv core.StreamEnvironment
+	streamEnv *core.StreamEnvironment
 )
 
 func exampleJob() *datastream.DataStream {
@@ -35,7 +35,7 @@ func exampleJob() *datastream.DataStream {
 
 func main() {
 	streamEnv = core.NewStreamEnvironment()
-	streamEnv.SetParallelism(2)
+	streamEnv.SetParallelism(10)
 
 	// making a container
 	stream := exampleJob()
