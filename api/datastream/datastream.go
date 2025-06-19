@@ -26,7 +26,15 @@ func (d *DataContainer) Map(mapper functions.MapTransformation) *DataContainer {
 	return result
 }
 
+func (d *DataContainer) FlatMap(flatmapper functions.FlatMapTransformation) *DataContainer {
+	result := d.AddTransformation(flatmapper)
+	return result
+}
+
 func (d *DataContainer) Sink(sinker transformation.Transformation) *DataContainer {
+	if sinker.GetTransformationType() != transformation.SINK {
+		panic("Sink only accepts transformations of type SINK")
+	}
 	result := d.AddTransformation(sinker)
 	return result
 }

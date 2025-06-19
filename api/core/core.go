@@ -32,10 +32,13 @@ func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	return d
 }
 
-func (d DataStack) FromSource(transformation transformation.Transformation) *datastream.DataContainer {
+func (d DataStack) FromSource(transformer transformation.Transformation) *datastream.DataContainer {
+	if transformer.GetTransformationType() != transformation.SOURCE {
+		panic("FromSource only accepts Transformation of type SOURCE")
+	}
 	stream := datastream.DataContainer{}
 	stream.SetConfigs(d.configs)
-	streamWithTransformation := stream.AddTransformation(transformation)
+	streamWithTransformation := stream.AddTransformation(transformer)
 	return streamWithTransformation
 }
 
