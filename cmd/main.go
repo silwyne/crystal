@@ -14,7 +14,7 @@ var (
 	myDataStack core.DataStack
 )
 
-func createContainer() datastream.DataContainer {
+func createContainer() *datastream.DataContainer {
 	source := datagenerator.NewDataGenerator(func() (interface{}, bool) {
 		time.Sleep(time.Second) // simulate data rate
 		return "sourceTime: " + time.Now().Local().String(), true
@@ -34,21 +34,20 @@ func createContainer() datastream.DataContainer {
 		},
 	}
 
-	container := myDataStack.FromSource(source) // with global parallelism which is 2
-	container = container.Map(mapper).SetParallelism(1)
-	container = container.Sink(sinker).SetParallelism(1)
+	container := myDataStack.FromSource(source).SetParallelism(3)
+	container = container.Map(mapper).SetParallelism(3)
+	container = container.Sink(sinker).SetParallelism(3)
 
 	return container
 }
 
 func main() {
 	myDataStack = core.NewDataStack()
-
-	// change Parallelism from 1 to 2
 	myDataStack.SetParallelism(2)
 
 	// making a container
 	container := createContainer()
+	container.PrintDetails()
 
 	// running the container
 	myDataStack.Execute(container)

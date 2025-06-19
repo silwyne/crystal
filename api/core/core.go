@@ -1,6 +1,7 @@
 package core
 
 import (
+	"process-engine/api/configuration"
 	"process-engine/api/datastream"
 	"process-engine/api/functions"
 	"sync"
@@ -11,16 +12,12 @@ const (
 )
 
 type DataStack struct {
-	configs StackConfig
-}
-
-type StackConfig struct {
-	Parallelism int
+	configs configuration.StreamConfig
 }
 
 func NewDataStack() DataStack {
-	configs := StackConfig{
-		Parallelism: detault_parallelism,
+	configs := configuration.StreamConfig{
+		GlobalParallelism: detault_parallelism,
 	}
 	return DataStack{
 		configs: configs,
@@ -31,26 +28,25 @@ func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	if parallelism < 1 {
 		panic("parallelism can't be less than 1")
 	}
-	d.configs.Parallelism = parallelism
+	d.configs.GlobalParallelism = parallelism
 	return d
 }
 
-func (d DataStack) FromSource(transformation functions.Transformation) datastream.DataContainer {
-	operator := datastream.Operator{
-		Transformer: transformation,
-		Parallelism: d.configs.Parallelism,
-	}
-	return datastream.DataContainer{}.AddTransformation(operator)
+func (d DataStack) FromSource(transformation functions.Transformation) *datastream.DataContainer {
+	stream := datastream.DataContainer{}
+	stream.SetConfigs(d.configs)
+	streamWithTransformation := stream.AddTransformation(transformation)
+	return streamWithTransformation
 }
 
-func (d DataStack) Execute(container datastream.DataContainer) {
-	Operators := container.Operators
-	if len(Operators) == 0 {
+func (d DataStack) Execute(container *datastream.DataContainer) {
+	operators := container.Operators
+	if len(operators) == 0 {
 		panic("No transformations in pipeline")
 	}
 
 	var transformations []functions.Transformation
-	for _, operator := range Operators {
+	for _, operator := range operators {
 		transformations = append(transformations, operator.Transformer)
 	}
 	d.runOperatorInParallel(transformations)
@@ -59,8 +55,8 @@ func (d DataStack) Execute(container datastream.DataContainer) {
 func (d DataStack) runOperatorInParallel(transformations []functions.Transformation) {
 	var wg sync.WaitGroup
 	var channel_holder []chan interface{}
-	wg.Add(d.configs.Parallelism)
-	for i := 0; i < d.configs.Parallelism; i++ {
+	wg.Add(d.configs.GlobalParallelism)
+	for i := 0; i < d.configs.GlobalParallelism; i++ {
 		go executeTransformations(&wg, transformations, channel_holder)
 	}
 	wg.Wait()
