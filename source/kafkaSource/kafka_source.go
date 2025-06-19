@@ -41,3 +41,7 @@ func (k *KafkaSourceTransformation) next() (interface{}, bool) {
 	}
 	return m, true
 }
+
+func (k KafkaSourceTransformation) GetName() string {
+	return "KafkaSourceTransformation"
+}

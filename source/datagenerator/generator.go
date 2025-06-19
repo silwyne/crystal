@@ -19,3 +19,7 @@ func (s DataGeneratorTransformation) ExecuteTransformation(wg *sync.WaitGroup, s
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }
+
+func (s DataGeneratorTransformation) GetName() string {
+	return "DataGeneratorTransformation"
+}

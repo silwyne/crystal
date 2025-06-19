@@ -9,6 +9,9 @@ type SinkTransformation struct {
 }
 
 func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+	if source_channel == nil {
+		panic("source channel can not be null")
+	}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -20,4 +23,8 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 		}
 	}()
 	return nil
+}
+
+func (s SinkTransformation) GetName() string {
+	return "SinkTransformation"
 }

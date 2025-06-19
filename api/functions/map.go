@@ -9,6 +9,9 @@ type MapTransformation struct {
 }
 
 func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+	if source_channel == nil {
+		panic("source channel can not be null")
+	}
 	result_channel := make(chan interface{})
 	wg.Add(1)
 	go func() {
@@ -22,4 +25,8 @@ func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_chan
 		close(result_channel)
 	}()
 	return result_channel
+}
+
+func (m MapTransformation) GetName() string {
+	return "MapTransformation"
 }
