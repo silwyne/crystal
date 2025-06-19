@@ -3,6 +3,7 @@ package consolesink
 import (
 	"fmt"
 	"process-engine/api/functions"
+	"process-engine/api/transformation"
 	"sync"
 )
 
@@ -24,6 +25,6 @@ func (s ConsoleSink) ExecuteTransformation(wg *sync.WaitGroup, source_channel ch
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (s ConsoleSink) GetName() string {
-	return "ConsoleSink"
+func (s ConsoleSink) GetTransformationType() transformation.TransformationType {
+	return transformation.SINK
 }

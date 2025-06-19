@@ -1,6 +1,9 @@
 package functions
 
-import "sync"
+import (
+	"process-engine/api/transformation"
+	"sync"
+)
 
 type FlatMapFunction func(interface{}) ([]interface{}, bool)
 
@@ -29,6 +32,6 @@ func (m FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_
 	return result_channel
 }
 
-func (m FlatMapTransformation) GetName() string {
-	return "FlatMapTransformation"
+func (m FlatMapTransformation) GetTransformationType() transformation.TransformationType {
+	return transformation.FLATMAP
 }

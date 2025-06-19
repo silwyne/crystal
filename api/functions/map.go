@@ -1,6 +1,9 @@
 package functions
 
-import "sync"
+import (
+	"process-engine/api/transformation"
+	"sync"
+)
 
 type MapFunction func(interface{}) (interface{}, bool)
 
@@ -27,6 +30,6 @@ func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_chan
 	return result_channel
 }
 
-func (m MapTransformation) GetName() string {
-	return "MapTransformation"
+func (m MapTransformation) GetTransformationType() transformation.TransformationType {
+	return transformation.MAP
 }

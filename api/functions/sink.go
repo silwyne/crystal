@@ -1,6 +1,9 @@
 package functions
 
-import "sync"
+import (
+	"process-engine/api/transformation"
+	"sync"
+)
 
 type SinkFunction func(interface{}) bool
 
@@ -25,6 +28,6 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 	return nil
 }
 
-func (s SinkTransformation) GetName() string {
-	return "SinkTransformation"
+func (s SinkTransformation) GetTransformationType() transformation.TransformationType {
+	return transformation.SINK
 }

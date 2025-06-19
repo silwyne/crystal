@@ -4,6 +4,7 @@ import (
 	"log"
 	"process-engine/api/configuration"
 	"process-engine/api/functions"
+	"process-engine/api/transformation"
 )
 
 type DataContainer struct {
@@ -12,7 +13,7 @@ type DataContainer struct {
 }
 
 type Operator struct {
-	Transformer functions.Transformation
+	Transformer transformation.Transformation
 	Parallelism int
 }
 
@@ -25,12 +26,12 @@ func (d *DataContainer) Map(mapper functions.MapTransformation) *DataContainer {
 	return result
 }
 
-func (d *DataContainer) Sink(sinker functions.Transformation) *DataContainer {
+func (d *DataContainer) Sink(sinker transformation.Transformation) *DataContainer {
 	result := d.AddTransformation(sinker)
 	return result
 }
 
-func (d *DataContainer) AddTransformation(transformation functions.Transformation) *DataContainer {
+func (d *DataContainer) AddTransformation(transformation transformation.Transformation) *DataContainer {
 	operator := Operator{
 		Transformer: transformation,
 		Parallelism: d.configs.GlobalParallelism,
@@ -53,6 +54,6 @@ func (d *DataContainer) SetConfigs(configs configuration.StreamConfig) {
 
 func (d *DataContainer) PrintDetails() {
 	for id, operator := range d.Operators {
-		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetName(), operator.Parallelism)
+		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetTransformationType(), operator.Parallelism)
 	}
 }

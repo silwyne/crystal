@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"process-engine/api/functions"
+	"process-engine/api/transformation"
 	"sync"
 
 	"github.com/segmentio/kafka-go"
@@ -42,6 +43,6 @@ func (k *KafkaSourceTransformation) next() (interface{}, bool) {
 	return m, true
 }
 
-func (k KafkaSourceTransformation) GetName() string {
-	return "KafkaSourceTransformation"
+func (k KafkaSourceTransformation) GetTransformationType() transformation.TransformationType {
+	return transformation.SOURCE
 }

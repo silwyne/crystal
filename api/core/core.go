@@ -3,12 +3,12 @@ package core
 import (
 	"process-engine/api/configuration"
 	"process-engine/api/datastream"
-	"process-engine/api/functions"
+	"process-engine/api/transformation"
 	"sync"
 )
 
 const (
-	detault_parallelism = 1
+	DEFAULT_PARALLELISM = 1
 )
 
 type DataStack struct {
@@ -17,7 +17,7 @@ type DataStack struct {
 
 func NewDataStack() DataStack {
 	configs := configuration.StreamConfig{
-		GlobalParallelism: detault_parallelism,
+		GlobalParallelism: DEFAULT_PARALLELISM,
 	}
 	return DataStack{
 		configs: configs,
@@ -32,7 +32,7 @@ func (d *DataStack) SetParallelism(parallelism int) *DataStack {
 	return d
 }
 
-func (d DataStack) FromSource(transformation functions.Transformation) *datastream.DataContainer {
+func (d DataStack) FromSource(transformation transformation.Transformation) *datastream.DataContainer {
 	stream := datastream.DataContainer{}
 	stream.SetConfigs(d.configs)
 	streamWithTransformation := stream.AddTransformation(transformation)
@@ -45,14 +45,14 @@ func (d DataStack) Execute(container *datastream.DataContainer) {
 		panic("No transformations in pipeline")
 	}
 
-	var transformations []functions.Transformation
+	var transformations []transformation.Transformation
 	for _, operator := range operators {
 		transformations = append(transformations, operator.Transformer)
 	}
 	d.runOperatorInParallel(transformations)
 }
 
-func (d DataStack) runOperatorInParallel(transformations []functions.Transformation) {
+func (d DataStack) runOperatorInParallel(transformations []transformation.Transformation) {
 	var wg sync.WaitGroup
 	var channel_holder []chan interface{}
 	wg.Add(d.configs.GlobalParallelism)
@@ -63,7 +63,7 @@ func (d DataStack) runOperatorInParallel(transformations []functions.Transformat
 }
 
 func executeTransformations(
-	wg *sync.WaitGroup, transformations []functions.Transformation,
+	wg *sync.WaitGroup, transformations []transformation.Transformation,
 	channel_holder []chan interface{}) {
 	for id, transformation := range transformations {
 		var source_channel chan interface{}
