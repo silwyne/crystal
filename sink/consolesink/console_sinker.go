@@ -18,13 +18,13 @@ func consoleSinkFunction(input interface{}) bool {
 	return err == nil
 }
 
-func (s ConsoleSink) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (cs ConsoleSink) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	st := functions.SinkTransformation{
 		Function: consoleSinkFunction,
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (s ConsoleSink) GetTransformationType() transformation.TransformationType {
+func (cs ConsoleSink) GetTransformationType() transformation.TransformationType {
 	return transformation.SINK
 }

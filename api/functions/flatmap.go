@@ -11,7 +11,7 @@ type FlatMapTransformation struct {
 	Function FlatMapFunction
 }
 
-func (m FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (fm FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	if source_channel == nil {
 		panic("source channel can not be null")
 	}
@@ -20,7 +20,7 @@ func (m FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_
 	go func() {
 		defer wg.Done()
 		for input := range source_channel {
-			flatten_data, ok := m.Function(input)
+			flatten_data, ok := fm.Function(input)
 			if ok {
 				for _, data := range flatten_data {
 					result_channel <- data
@@ -32,6 +32,6 @@ func (m FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_
 	return result_channel
 }
 
-func (m FlatMapTransformation) GetTransformationType() transformation.TransformationType {
+func (fm FlatMapTransformation) GetTransformationType() transformation.TransformationType {
 	return transformation.FLATMAP
 }

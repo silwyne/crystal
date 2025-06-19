@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	myDataStack core.DataStack
+	streamEnv core.StreamEnvironment
 )
 
-func createContainer() *datastream.DataContainer {
+func exampleJob() *datastream.DataStream {
 	source := datagenerator.NewDataGenerator(func() (interface{}, bool) {
 		time.Sleep(time.Second) // simulate data rate
 		return "sourceTime: " + time.Now().Local().String(), true
@@ -29,21 +29,21 @@ func createContainer() *datastream.DataContainer {
 
 	sinker := consolesink.NewConsoleSinker()
 
-	container := myDataStack.FromSource(source).SetParallelism(3)
-	container = container.Map(mapper).SetParallelism(3)
-	container = container.Sink(sinker).SetParallelism(3)
+	stream := streamEnv.FromSource(source).SetParallelism(3)
+	stream = stream.Map(mapper).SetParallelism(3)
+	stream = stream.Sink(sinker).SetParallelism(3)
 
-	return container
+	return stream
 }
 
 func main() {
-	myDataStack = core.NewDataStack()
-	myDataStack.SetParallelism(2)
+	streamEnv = core.NewStreamEnvironment()
+	streamEnv.SetParallelism(2)
 
 	// making a container
-	container := createContainer()
-	container.PrintDetails()
+	stream := exampleJob()
+	stream.PrintDetails()
 
 	// running the container
-	myDataStack.Execute(container)
+	streamEnv.Execute(stream)
 }

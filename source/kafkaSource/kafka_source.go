@@ -10,14 +10,14 @@ import (
 	"github.com/segmentio/kafka-go"
 )
 
-type KafkaSourceTransformation struct {
+type KafkaSource struct {
 	Function functions.SourceFunction
 	reader   *kafka.Reader
 	ctx      context.Context
 }
 
-func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSourceTransformation {
-	return &KafkaSourceTransformation{
+func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
+	return &KafkaSource{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: brokers,
 			Topic:   topic,
@@ -27,15 +27,15 @@ func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSourceTransfo
 	}
 }
 
-func (s KafkaSourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (ks KafkaSource) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	st := functions.SourceTransformation{
-		Function: s.next,
+		Function: ks.next,
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (k *KafkaSourceTransformation) next() (interface{}, bool) {
-	m, err := k.reader.ReadMessage(k.ctx)
+func (ks *KafkaSource) next() (interface{}, bool) {
+	m, err := ks.reader.ReadMessage(ks.ctx)
 	if err != nil {
 		log.Printf("Kafka read error: %v", err)
 		return nil, false
@@ -43,6 +43,6 @@ func (k *KafkaSourceTransformation) next() (interface{}, bool) {
 	return m, true
 }
 
-func (k KafkaSourceTransformation) GetTransformationType() transformation.TransformationType {
+func (k KafkaSource) GetTransformationType() transformation.TransformationType {
 	return transformation.SOURCE
 }

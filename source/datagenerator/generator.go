@@ -6,21 +6,21 @@ import (
 	"sync"
 )
 
-type DataGeneratorTransformation struct {
+type DataGenerator struct {
 	dataGenFunction functions.SourceFunction
 }
 
-func NewDataGenerator(dataGenFunction functions.SourceFunction) *DataGeneratorTransformation {
-	return &DataGeneratorTransformation{dataGenFunction: dataGenFunction}
+func NewDataGenerator(dataGenFunction functions.SourceFunction) *DataGenerator {
+	return &DataGenerator{dataGenFunction: dataGenFunction}
 }
 
-func (s DataGeneratorTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (dg DataGenerator) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	st := functions.SourceTransformation{
-		Function: s.dataGenFunction,
+		Function: dg.dataGenFunction,
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (s DataGeneratorTransformation) GetTransformationType() transformation.TransformationType {
+func (s DataGenerator) GetTransformationType() transformation.TransformationType {
 	return transformation.SOURCE
 }

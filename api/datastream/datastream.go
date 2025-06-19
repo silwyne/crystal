@@ -7,7 +7,7 @@ import (
 	"process-engine/api/transformation"
 )
 
-type DataContainer struct {
+type DataStream struct {
 	configs   configuration.StreamConfig
 	Operators []Operator
 }
@@ -21,17 +21,17 @@ func (o *Operator) SetParallelism(parallalism int) {
 	o.Parallelism = parallalism
 }
 
-func (d *DataContainer) Map(mapper functions.MapTransformation) *DataContainer {
+func (d *DataStream) Map(mapper functions.MapTransformation) *DataStream {
 	result := d.AddTransformation(mapper)
 	return result
 }
 
-func (d *DataContainer) FlatMap(flatmapper functions.FlatMapTransformation) *DataContainer {
+func (d *DataStream) FlatMap(flatmapper functions.FlatMapTransformation) *DataStream {
 	result := d.AddTransformation(flatmapper)
 	return result
 }
 
-func (d *DataContainer) Sink(sinker transformation.Transformation) *DataContainer {
+func (d *DataStream) Sink(sinker transformation.Transformation) *DataStream {
 	if sinker.GetTransformationType() != transformation.SINK {
 		panic("Sink only accepts transformations of type SINK")
 	}
@@ -39,28 +39,28 @@ func (d *DataContainer) Sink(sinker transformation.Transformation) *DataContaine
 	return result
 }
 
-func (d *DataContainer) AddTransformation(transformation transformation.Transformation) *DataContainer {
+func (d *DataStream) AddTransformation(transformation transformation.Transformation) *DataStream {
 	operator := Operator{
 		Transformer: transformation,
 		Parallelism: d.configs.GlobalParallelism,
 	}
-	return &DataContainer{
+	return &DataStream{
 		Operators: append(d.Operators, operator),
 		configs:   d.configs,
 	}
 }
 
-func (d *DataContainer) SetParallelism(parallelism int) *DataContainer {
+func (d *DataStream) SetParallelism(parallelism int) *DataStream {
 	last_operator := &d.Operators[len(d.Operators)-1]
 	last_operator.SetParallelism(parallelism)
 	return d
 }
 
-func (d *DataContainer) SetConfigs(configs configuration.StreamConfig) {
+func (d *DataStream) SetConfigs(configs configuration.StreamConfig) {
 	d.configs = configs
 }
 
-func (d *DataContainer) PrintDetails() {
+func (d *DataStream) PrintDetails() {
 	for id, operator := range d.Operators {
 		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetTransformationType(), operator.Parallelism)
 	}
