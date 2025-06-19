@@ -4,7 +4,6 @@ import (
 	"process-engine/api/core"
 	"process-engine/api/datastream"
 	"process-engine/api/functions"
-	"process-engine/sink/consolesink"
 	"process-engine/source/datagenerator"
 
 	"time"
@@ -27,11 +26,9 @@ func exampleJob() *datastream.DataStream {
 		},
 	}
 
-	sinker := consolesink.NewConsoleSinker()
-
 	stream := streamEnv.FromSource(source).SetParallelism(3)
 	stream = stream.Map(mapper).SetParallelism(3)
-	stream = stream.Sink(sinker).SetParallelism(3)
+	stream = stream.Print()
 
 	return stream
 }
