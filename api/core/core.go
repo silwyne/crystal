@@ -4,7 +4,7 @@ import (
 	"log"
 	"process-engine/api/configuration"
 	"process-engine/api/datastream"
-	"process-engine/api/transformation"
+	"process-engine/api/operation"
 	"sync"
 )
 
@@ -29,8 +29,8 @@ func (se *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment 
 	return se
 }
 
-func (se *StreamEnvironment) FromSource(transformer transformation.Transformation) *datastream.DataStream {
-	if transformer.GetTransformationType() != transformation.SOURCE {
+func (se *StreamEnvironment) FromSource(transformer operation.Transformation) *datastream.DataStream {
+	if transformer.GetTransformationType() != operation.SOURCE {
 		panic("FromSource only accepts Transformation of type SOURCE")
 	}
 	stream := datastream.DataStream{}
@@ -45,7 +45,7 @@ func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 		panic("No transformations in pipeline")
 	}
 
-	var transformations []transformation.Transformation
+	var transformations []operation.Transformation
 	for _, operator := range operators {
 		transformations = append(transformations, operator.Transformer)
 	}
@@ -53,7 +53,7 @@ func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 	se.runOperatorInParallel(transformations)
 }
 
-func (se *StreamEnvironment) runOperatorInParallel(transformations []transformation.Transformation) {
+func (se *StreamEnvironment) runOperatorInParallel(transformations []operation.Transformation) {
 	var wg sync.WaitGroup
 	var channel_holder []chan interface{}
 	wg.Add(se.configs.GlobalParallelism)
@@ -64,7 +64,7 @@ func (se *StreamEnvironment) runOperatorInParallel(transformations []transformat
 }
 
 func executeTransformations(
-	wg *sync.WaitGroup, transformations []transformation.Transformation,
+	wg *sync.WaitGroup, transformations []operation.Transformation,
 	channel_holder []chan interface{}) {
 	for id, transformation := range transformations {
 		var source_channel chan interface{}

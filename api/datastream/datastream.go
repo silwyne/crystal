@@ -4,22 +4,13 @@ import (
 	"log"
 	"process-engine/api/configuration"
 	"process-engine/api/functions"
-	"process-engine/api/transformation"
+	"process-engine/api/operation"
 	"process-engine/sink/consolesink"
 )
 
 type DataStream struct {
 	configs   configuration.StreamConfig
-	Operators []Operator
-}
-
-type Operator struct {
-	Transformer transformation.Transformation
-	Parallelism int
-}
-
-func (o *Operator) SetParallelism(parallalism int) {
-	o.Parallelism = parallalism
+	Operators []operation.Operator
 }
 
 func (ds *DataStream) Map(mapper functions.MapTransformation) *DataStream {
@@ -32,19 +23,16 @@ func (ds *DataStream) FlatMap(flatmapper functions.FlatMapTransformation) *DataS
 	return result
 }
 
-func (ds *DataStream) Sink(sinker transformation.Transformation) *DataStream {
-	if sinker.GetTransformationType() != transformation.SINK {
+func (ds *DataStream) Sink(sinker operation.Transformation) *DataStream {
+	if sinker.GetTransformationType() != operation.SINK {
 		panic("Sink only accepts transformations of type SINK")
 	}
 	result := ds.AddTransformation(sinker)
 	return result
 }
 
-func (ds *DataStream) AddTransformation(transformation transformation.Transformation) *DataStream {
-	operator := Operator{
-		Transformer: transformation,
-		Parallelism: ds.configs.GlobalParallelism,
-	}
+func (ds *DataStream) AddTransformation(transformer operation.Transformation) *DataStream {
+	operator := operation.NewOperator(transformer, ds.configs.GlobalParallelism)
 	return &DataStream{
 		Operators: append(ds.Operators, operator),
 		configs:   ds.configs,

@@ -2,7 +2,7 @@ package datagenerator
 
 import (
 	"process-engine/api/functions"
-	"process-engine/api/transformation"
+	"process-engine/api/operation"
 	"sync"
 )
 
@@ -21,6 +21,6 @@ func (dg DataGenerator) ExecuteTransformation(wg *sync.WaitGroup, source_channel
 	return st.ExecuteTransformation(wg, source_channel)
 }
 
-func (s DataGenerator) GetTransformationType() transformation.TransformationType {
-	return transformation.SOURCE
+func (s DataGenerator) GetTransformationType() operation.TransformationType {
+	return operation.SOURCE
 }

@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"process-engine/api/transformation"
+	"process-engine/api/operation"
 	"sync"
 )
 
@@ -27,6 +27,6 @@ func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_c
 	return source_channel // sending as result channel
 }
 
-func (s SourceTransformation) GetTransformationType() transformation.TransformationType {
-	return transformation.SOURCE
+func (s SourceTransformation) GetTransformationType() operation.TransformationType {
+	return operation.SOURCE
 }

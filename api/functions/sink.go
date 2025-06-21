@@ -1,7 +1,7 @@
 package functions
 
 import (
-	"process-engine/api/transformation"
+	"process-engine/api/operation"
 	"sync"
 )
 
@@ -28,6 +28,6 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 	return nil
 }
 
-func (s SinkTransformation) GetTransformationType() transformation.TransformationType {
-	return transformation.SINK
+func (s SinkTransformation) GetTransformationType() operation.TransformationType {
+	return operation.SINK
 }
