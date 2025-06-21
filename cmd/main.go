@@ -26,8 +26,8 @@ func exampleJob() *datastream.DataStream {
 		},
 	}
 
-	stream := streamEnv.FromSource(source).SetParallelism(3)
-	stream = stream.Map(mapper).SetParallelism(3)
+	stream := streamEnv.FromSource(source)
+	stream = stream.Map(mapper)
 	stream = stream.Print()
 
 	return stream

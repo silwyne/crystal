@@ -45,6 +45,15 @@ func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 		panic("No transformations in pipeline")
 	}
 
+	for id, operator := range operators {
+		if id+1 < len(operators) {
+			if operator.Parallelism != operators[id+1].Parallelism {
+				panic("only supporting DIRECT_CHAIN between operators so all operators parallelism must be same")
+			}
+		}
+
+	}
+
 	var transformations []operation.Transformation
 	for _, operator := range operators {
 		transformations = append(transformations, operator.Transformer)
