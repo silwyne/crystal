@@ -7,9 +7,11 @@ type Operator struct {
 }
 
 func NewOperator(transformer Transformation, parallelism int) Operator {
+	theChainer := NewDirectOperatorChainer()
 	return Operator{
 		Transformer: transformer,
 		Parallelism: parallelism,
+		Chainer:     theChainer,
 	}
 }
 

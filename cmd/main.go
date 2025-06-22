@@ -2,26 +2,26 @@ package main
 
 import (
 	"process-engine/api/core"
-	"process-engine/api/datastream"
 	"process-engine/api/functions"
 	"process-engine/source/datagenerator"
 
 	"time"
 )
 
-var (
-	streamEnv *core.StreamEnvironment
-)
+func main() {
+	streamEnv := core.NewStreamEnvironment()
+	streamEnv.SetParallelism(4)
 
-func exampleJob() *datastream.DataStream {
+	// using a DataGenSource
 	source := datagenerator.NewDataGenerator(func() (interface{}, bool) {
 		time.Sleep(time.Second) // simulate data rate
 		return "sourceTime: " + time.Now().Local().String(), true
 	})
 
+	// transforming stream into something new
 	mapper := functions.MapTransformation{
 		Function: func(input interface{}) (interface{}, bool) {
-			stringResult := string(input.(string)) + ", transform: " + time.Now().Local().String()
+			stringResult := input.(string) + ", transform: " + time.Now().Local().String()
 			return stringResult, true
 		},
 	}
@@ -30,17 +30,7 @@ func exampleJob() *datastream.DataStream {
 	stream = stream.Map(mapper)
 	stream = stream.Print()
 
-	return stream
-}
-
-func main() {
-	streamEnv = core.NewStreamEnvironment()
-	streamEnv.SetParallelism(1)
-
-	// making a container
-	stream := exampleJob()
 	stream.PrintDetails()
-
 	// running the container
 	streamEnv.Execute(stream)
 }

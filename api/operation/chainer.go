@@ -1,7 +1,9 @@
 package operation
 
+import "sync"
+
 type OperatorChainer interface {
-	ExecuteChaining(input_channels []chan interface{}, num_output_channels int) []chan interface{}
+	ExecuteChaining(wg *sync.WaitGroup, input_channels []chan interface{}, num_output_channels int) []chan interface{}
 	GetChainingType() ChainingType
 }
 
