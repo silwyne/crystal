@@ -5,7 +5,7 @@ import (
 	"process-engine/api/configuration"
 	"process-engine/api/functions"
 	"process-engine/api/operation"
-	"process-engine/sink/consolesink"
+	"process-engine/sink/console"
 )
 
 type DataStream struct {
@@ -50,7 +50,7 @@ func (ds *DataStream) SetConfigs(configs configuration.StreamConfig) {
 }
 
 func (ds *DataStream) Print() *DataStream {
-	sinker := consolesink.NewConsoleSinker()
+	sinker := console.NewConsoleSinker()
 	stream := ds.Sink(sinker)
 	return stream
 }
