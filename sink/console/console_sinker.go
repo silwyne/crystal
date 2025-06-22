@@ -2,9 +2,10 @@ package console
 
 import (
 	"fmt"
-	"process-engine/api/functions"
-	"process-engine/api/operation"
 	"sync"
+
+	"github.com/crystal/api/functions"
+	"github.com/crystal/api/operation"
 )
 
 type ConsoleSink struct{}

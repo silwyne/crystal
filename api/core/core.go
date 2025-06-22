@@ -2,10 +2,11 @@ package core
 
 import (
 	"log"
-	"process-engine/api/configuration"
-	"process-engine/api/datastream"
-	"process-engine/api/operation"
 	"sync"
+
+	"github.com/crystal/api/configuration"
+	"github.com/crystal/api/datastream"
+	"github.com/crystal/api/operation"
 )
 
 type StreamEnvironment struct {

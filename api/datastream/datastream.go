@@ -2,10 +2,11 @@ package datastream
 
 import (
 	"log"
-	"process-engine/api/configuration"
-	"process-engine/api/functions"
-	"process-engine/api/operation"
-	"process-engine/sink/console"
+
+	"github.com/crystal/api/configuration"
+	"github.com/crystal/api/functions"
+	"github.com/crystal/api/operation"
+	"github.com/crystal/sink/console"
 )
 
 type DataStream struct {

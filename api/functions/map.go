@@ -1,8 +1,9 @@
 package functions
 
 import (
-	"process-engine/api/operation"
 	"sync"
+
+	"github.com/crystal/api/operation"
 )
 
 type MapFunction func(interface{}) (interface{}, bool)

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"process-engine/api/core"
-	"process-engine/api/functions"
-	"process-engine/source/datagenerator"
+	"github.com/crystal/api/core"
+	"github.com/crystal/api/functions"
+	"github.com/crystal/source/datagenerator"
 
 	"time"
 )
