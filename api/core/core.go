@@ -66,34 +66,43 @@ func (se *StreamEnvironment) runLayers(operators []operation.Operator) {
 	for id, operator := range operators {
 
 		log.Printf("layer %v : %v : Starting\n", id, operator.Transformer.GetTransformationType())
-		var source_channels []chan interface{}
-
 		log.Printf("layer %v : %v : Getting source channels\n", id, operator.Transformer.GetTransformationType())
-		if id == 0 {
-			log.Printf("layer %v : %v : initializing source channels\n", id, operator.Transformer.GetTransformationType())
-			for range operator.Parallelism {
-				source_channel_initializer := make(chan interface{})
-				source_channels = append(source_channels, source_channel_initializer)
-			}
-		} else {
-			log.Printf("layer %v : %v : chaining source channels from last result channels \n", id, operator.Transformer.GetTransformationType())
-			// get last result channels
-			last_result_channels := all_result_channels[len(all_result_channels)-1]
-			// using operator chainer
-			// to merge or direct or distribute channels into new parallelism that fits current operator
-			log.Printf("layer %v : %v : Executing Operator chainer \n", id, operator.Transformer.GetTransformationType())
-			source_channels = operator.Chainer.ExecuteChaining(&wg, last_result_channels, operator.Parallelism)
-		}
+		source_channels := getSourceChannels(&wg, id, &operator, all_result_channels)
 
 		log.Printf("layer %v : %v : starting operator parallel instances\n", id, operator.Transformer.GetTransformationType())
-		var result_channels []chan interface{}
-		for parallel_id := range operator.Parallelism {
-			log.Printf("layer %v : %v : starting parallel instance %v", id, operator.Transformer.GetTransformationType(), parallel_id)
-			result_channel := operator.Transformer.ExecuteTransformation(&wg, source_channels[parallel_id])
-			result_channels = append(result_channels, result_channel)
-		}
+		result_channels := startLayer(&wg, id, &operator, source_channels)
 		all_result_channels = append(all_result_channels, result_channels)
 	}
 	wg.Wait()
 
+}
+
+func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator, all_result_channels [][]chan interface{}) []chan interface{} {
+	var source_channels []chan interface{}
+	if id == 0 {
+		log.Printf("layer %v : %v : initializing source channels\n", id, operator.Transformer.GetTransformationType())
+		for range operator.Parallelism {
+			source_channel_initializer := make(chan interface{})
+			source_channels = append(source_channels, source_channel_initializer)
+		}
+	} else {
+		log.Printf("layer %v : %v : chaining source channels from last result channels \n", id, operator.Transformer.GetTransformationType())
+		// get last result channels
+		last_result_channels := all_result_channels[len(all_result_channels)-1]
+		// using operator chainer
+		// to merge or direct or distribute channels into new parallelism that fits current operator
+		log.Printf("layer %v : %v : Executing Operator chainer \n", id, operator.Transformer.GetTransformationType())
+		source_channels = operator.Chainer.ExecuteChaining(wg, last_result_channels, operator.Parallelism)
+	}
+	return source_channels
+}
+
+func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source_channels []chan interface{}) []chan interface{} {
+	var result_channels []chan interface{}
+	for parallel_id := range operator.Parallelism {
+		log.Printf("layer %v : %v : starting parallel instance %v", id, operator.Transformer.GetTransformationType(), parallel_id)
+		result_channel := operator.Transformer.ExecuteTransformation(wg, source_channels[parallel_id])
+		result_channels = append(result_channels, result_channel)
+	}
+	return result_channels
 }
