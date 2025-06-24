@@ -1,12 +1,12 @@
 package datastream
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/crystal/api/configuration"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
-	"github.com/crystal/sink/console"
 )
 
 type DataStream struct {
@@ -24,10 +24,7 @@ func (ds *DataStream) FlatMap(flatmapper functions.FlatMapTransformation) *DataS
 	return result
 }
 
-func (ds *DataStream) Sink(sinker operation.Transformation) *DataStream {
-	if sinker.GetTransformationType() != operation.SINK {
-		panic("Sink only accepts transformations of type SINK")
-	}
+func (ds *DataStream) Sink(sinker functions.SinkTransformation) *DataStream {
 	result := ds.AddTransformation(sinker)
 	return result
 }
@@ -51,7 +48,12 @@ func (ds *DataStream) SetConfigs(configs configuration.StreamConfig) {
 }
 
 func (ds *DataStream) Print() *DataStream {
-	sinker := console.NewConsoleSinker()
+	sinker := functions.SinkTransformation{
+		Function: func(i interface{}) bool {
+			fmt.Println("> " + i.(string))
+			return true
+		},
+	}
 	stream := ds.Sink(sinker)
 	return stream
 }
