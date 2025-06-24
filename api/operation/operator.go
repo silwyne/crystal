@@ -1,13 +1,15 @@
 package operation
 
+import "github.com/crystal/api/operation/chainer"
+
 type Operator struct {
 	Transformer Transformation
 	Parallelism int
-	Chainer     OperatorChainer
+	Chainer     chainer.OperatorChainer
 }
 
 func NewOperator(transformer Transformation, parallelism int) Operator {
-	theChainer := NewDirectOperatorChainer()
+	theChainer := chainer.NewDirectOperatorChainer()
 	return Operator{
 		Transformer: transformer,
 		Parallelism: parallelism,
@@ -19,6 +21,6 @@ func (o *Operator) SetParallelism(parallalism int) {
 	o.Parallelism = parallalism
 }
 
-func (o *Operator) SetChainer(chainer OperatorChainer) {
+func (o *Operator) SetChainer(chainer chainer.OperatorChainer) {
 	o.Chainer = chainer
 }
