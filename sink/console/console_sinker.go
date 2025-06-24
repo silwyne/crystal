@@ -15,7 +15,7 @@ func NewConsoleSinker() ConsoleSink {
 }
 
 func consoleSinkFunction(input interface{}) bool {
-	_, err := fmt.Println(input.(string))
+	_, err := fmt.Println("> " + input.(string))
 	return err == nil
 }
 
