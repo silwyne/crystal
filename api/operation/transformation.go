@@ -1,8 +1,12 @@
 package operation
 
-import "sync"
+import (
+	"sync"
 
-type Transformation[IN any, OUT any] interface {
-	Execute(wg *sync.WaitGroup, source chan IN) chan OUT
+	"github.com/crystal/api/row"
+)
+
+type Transformation interface {
+	Execute(wg *sync.WaitGroup, source chan row.Row) chan row.Row
 	GetName() string
 }

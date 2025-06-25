@@ -1,9 +1,13 @@
 package chainer
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/crystal/api/row"
+)
 
 type OperatorChainer interface {
-	ExecuteChaining(wg *sync.WaitGroup, input_channels []chan interface{}, num_output_channels int) []chan interface{}
+	ExecuteChaining(wg *sync.WaitGroup, input_channels []chan row.Row, num_output_channels int) []chan row.Row
 	GetChainingType() ChainingType
 }
 

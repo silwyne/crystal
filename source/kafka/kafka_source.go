@@ -6,16 +6,20 @@ import (
 	"sync"
 
 	"github.com/crystal/api/functions"
+	"github.com/crystal/api/row"
 
 	"github.com/segmentio/kafka-go"
 )
 
 type KafkaSource struct {
-	reader *kafka.Reader
-	ctx    context.Context
+	reader       *kafka.Reader
+	ctx          context.Context
+	deserializer KafkaDeserializer
 }
 
-func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
+type KafkaDeserializer func(kafka.Message) (row.Row, bool)
+
+func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaDeserializer) *KafkaSource {
 	return &KafkaSource{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: brokers,
@@ -26,20 +30,21 @@ func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
 	}
 }
 
-func (ks KafkaSource) Execute(wg *sync.WaitGroup, source_channel chan interface{}) chan kafka.Message {
-	st := functions.SourceTransformation[any, kafka.Message]{
+func (ks KafkaSource) Execute(wg *sync.WaitGroup, source_channel chan row.Row) chan row.Row {
+	st := functions.SourceTransformation{
 		SourceFunction: ks.next,
 	}
 	return st.Execute(wg, source_channel)
 }
 
-func (ks *KafkaSource) next() (kafka.Message, bool) {
-	m, err := ks.reader.ReadMessage(ks.ctx)
+func (ks *KafkaSource) next() (row.Row, bool) {
+	kafka_message, err := ks.reader.ReadMessage(ks.ctx)
 	if err != nil {
 		log.Printf("Kafka read error: %v", err)
-		return m, false
+		return row.Row{}, false
 	}
-	return m, true
+	row, ok := ks.deserializer(kafka_message)
+	return row, ok
 }
 
 func (k KafkaSource) GetName() string {

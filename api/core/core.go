@@ -8,6 +8,7 @@ import (
 	"github.com/crystal/api/datastream"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
+	"github.com/crystal/api/row"
 )
 
 type StreamEnvironment struct {
@@ -31,14 +32,14 @@ func (se *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment 
 	return se
 }
 
-func FromSource[OUT any](se *StreamEnvironment, source functions.SourceTransformation[any, OUT]) *datastream.DataStream[OUT] {
-	stream := datastream.DataStream[any]{}
+func (se *StreamEnvironment) FromSource(source functions.SourceTransformation) *datastream.DataStream {
+	stream := datastream.DataStream{}
 	stream.SetConfigs(se.configs)
-	streamWithTransformation := datastream.AddTransformation(&stream, source)
+	streamWithTransformation := stream.AddTransformation(source)
 	return streamWithTransformation
 }
 
-func Execute[T any](se *StreamEnvironment, container *datastream.DataStream[T]) {
+func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 	operators := container.Operators
 	if len(operators) == 0 {
 		panic("No transformations in pipeline")
@@ -60,7 +61,7 @@ func Execute[T any](se *StreamEnvironment, container *datastream.DataStream[T]) 
 func (se *StreamEnvironment) runLayers(operators []operation.Operator) {
 
 	var wg sync.WaitGroup
-	var all_result_channels [][]chan interface{}
+	var all_result_channels [][]chan row.Row
 	for id, operator := range operators {
 
 		log.Printf("layer %v : %v : Starting\n", id, operator.Transformer.GetName())
@@ -75,12 +76,12 @@ func (se *StreamEnvironment) runLayers(operators []operation.Operator) {
 
 }
 
-func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator, all_result_channels [][]chan interface{}) []chan interface{} {
-	var source_channels []chan interface{}
+func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator, all_result_channels [][]chan row.Row) []chan row.Row {
+	var source_channels []chan row.Row
 	if id == 0 {
 		log.Printf("layer %v : %v : initializing source channels\n", id, operator.Transformer.GetName())
 		for range operator.Parallelism {
-			source_channel_initializer := make(chan interface{})
+			source_channel_initializer := make(chan row.Row)
 			source_channels = append(source_channels, source_channel_initializer)
 		}
 	} else {
@@ -95,8 +96,8 @@ func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator,
 	return source_channels
 }
 
-func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source_channels []chan interface{}) []chan interface{} {
-	var result_channels []chan interface{}
+func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source_channels []chan row.Row) []chan row.Row {
+	var result_channels []chan row.Row
 	for parallel_id := range operator.Parallelism {
 		log.Printf("layer %v : %v : starting parallel instance %v", id, operator.Transformer.GetName(), parallel_id)
 		result_channel := operator.Transformer.Execute(wg, source_channels[parallel_id])

@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/crystal/api/core"
-	"github.com/crystal/api/datastream"
 	"github.com/crystal/api/functions"
+	"github.com/crystal/api/row"
 
 	"time"
 )
@@ -12,26 +12,28 @@ func main() {
 	streamEnv := core.NewStreamEnvironment()
 	streamEnv.SetParallelism(4)
 
-	source := functions.SourceTransformation[any, string]{
-		SourceFunction: func() (string, bool) {
+	source := functions.SourceTransformation{
+		SourceFunction: func() (row.Row, bool) {
 			time.Sleep(time.Second) // simulate data rate
-			return "sourceTime: " + time.Now().Local().String(), true
+			my_row := row.From("sourceTime: " + time.Now().Local().String())
+			return my_row, true
 		},
 	}
 
 	// transforming stream into something new
-	mapper := functions.MapTransformation[string, string]{
-		MapFunction: func(input string) (string, bool) {
-			stringResult := input + ", transform: " + time.Now().Local().String()
-			return stringResult, true
+	mapper := functions.MapTransformation{
+		MapFunction: func(input row.Row) (row.Row, bool) {
+			str := "transform: " + time.Now().Local().String()
+			input.AddColumn(str)
+			return input, true
 		},
 	}
 
-	stream := core.FromSource(streamEnv, source)
-	stream = datastream.Map(stream, mapper)
+	stream := streamEnv.FromSource(source)
+	stream = stream.Map(mapper)
 	sinkStream := stream.Print()
 
 	sinkStream.PrintDetails()
 	// running the container
-	core.Execute(streamEnv, sinkStream)
+	streamEnv.Execute(sinkStream)
 }
