@@ -25,6 +25,10 @@ func (s SourceTransformation) Execute(wg *sync.WaitGroup, source_channel chan ro
 	return result_channel
 }
 
+func (SourceTransformation) IsResultStateless() bool {
+	return true
+}
+
 func (SourceTransformation) GetName() string {
 	return "SOURCE"
 }

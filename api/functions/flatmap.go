@@ -31,6 +31,10 @@ func (fm FlatMapTransformation) Execute(wg *sync.WaitGroup, source_channel chan 
 	return result_channel
 }
 
+func (FlatMapTransformation) IsResultStateless() bool {
+	return true
+}
+
 func (FlatMapTransformation) GetName() string {
 	return "FLAT_MAP"
 }

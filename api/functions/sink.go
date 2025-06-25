@@ -24,6 +24,10 @@ func (s SinkTransformation) Execute(wg *sync.WaitGroup, source_channel chan row.
 	return nil
 }
 
+func (SinkTransformation) IsResultStateless() bool {
+	return true
+}
+
 func (SinkTransformation) GetName() string {
 	return "SINK"
 }

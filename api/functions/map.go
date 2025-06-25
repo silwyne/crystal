@@ -29,6 +29,10 @@ func (m MapTransformation) Execute(wg *sync.WaitGroup, source_channel chan row.R
 	return result_channel
 }
 
+func (MapTransformation) IsResultStateless() bool {
+	return true
+}
+
 func (MapTransformation) GetName() string {
 	return "MAP"
 }

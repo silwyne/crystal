@@ -47,6 +47,10 @@ func (ks *KafkaSource) next() (row.Row, bool) {
 	return row, ok
 }
 
+func (KafkaSource) IsResultStateless() bool {
+	return true
+}
+
 func (k KafkaSource) GetName() string {
 	return "KAFKA_SOURCE"
 }
