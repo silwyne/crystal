@@ -49,9 +49,8 @@ func (ds *DataStream) SetConfigs(configs configuration.StreamConfig) {
 
 func (ds *DataStream) Print() *DataStream {
 	sinker := functions.SinkTransformation{
-		Function: func(i interface{}) bool {
+		SinkFunction: func(i interface{}) {
 			fmt.Println("> " + i.(string))
-			return true
 		},
 	}
 	stream := ds.Sink(sinker)

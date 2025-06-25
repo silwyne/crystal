@@ -6,10 +6,8 @@ import (
 	"github.com/crystal/api/operation"
 )
 
-type SourceFunction func() (interface{}, bool)
-
 type SourceTransformation struct {
-	Function SourceFunction
+	SourceFunction func() (interface{}, bool)
 }
 
 func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
@@ -17,13 +15,11 @@ func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_c
 	go func() {
 		defer wg.Done()
 		for {
-			data, ok := s.Function()
-			if !ok {
-				break
+			data, ok := s.SourceFunction()
+			if ok {
+				source_channel <- data
 			}
-			source_channel <- data
 		}
-		close(source_channel)
 	}()
 	return source_channel // sending as result channel
 }

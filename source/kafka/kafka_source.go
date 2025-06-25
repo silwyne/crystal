@@ -12,9 +12,8 @@ import (
 )
 
 type KafkaSource struct {
-	Function functions.SourceFunction
-	reader   *kafka.Reader
-	ctx      context.Context
+	reader *kafka.Reader
+	ctx    context.Context
 }
 
 func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
@@ -30,7 +29,7 @@ func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
 
 func (ks KafkaSource) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
 	st := functions.SourceTransformation{
-		Function: ks.next,
+		SourceFunction: ks.next,
 	}
 	return st.ExecuteTransformation(wg, source_channel)
 }

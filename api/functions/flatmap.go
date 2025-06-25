@@ -6,10 +6,8 @@ import (
 	"github.com/crystal/api/operation"
 )
 
-type FlatMapFunction func(interface{}) ([]interface{}, bool)
-
 type FlatMapTransformation struct {
-	Function FlatMapFunction
+	FlatMapFunction func(interface{}) ([]interface{}, bool)
 }
 
 func (fm FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
@@ -21,7 +19,7 @@ func (fm FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source
 	go func() {
 		defer wg.Done()
 		for input := range source_channel {
-			flatten_data, ok := fm.Function(input)
+			flatten_data, ok := fm.FlatMapFunction(input)
 			if ok {
 				for _, data := range flatten_data {
 					result_channel <- data

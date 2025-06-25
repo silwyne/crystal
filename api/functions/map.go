@@ -6,10 +6,8 @@ import (
 	"github.com/crystal/api/operation"
 )
 
-type MapFunction func(interface{}) (interface{}, bool)
-
 type MapTransformation struct {
-	Function MapFunction
+	MapFunction func(interface{}) (interface{}, bool)
 }
 
 func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
@@ -21,7 +19,7 @@ func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_chan
 	go func() {
 		defer wg.Done()
 		for input := range source_channel {
-			data, ok := m.Function(input)
+			data, ok := m.MapFunction(input)
 			if ok {
 				result_channel <- data
 			}

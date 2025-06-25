@@ -6,10 +6,8 @@ import (
 	"github.com/crystal/api/operation"
 )
 
-type SinkFunction func(interface{}) bool
-
 type SinkTransformation struct {
-	Function SinkFunction
+	SinkFunction func(interface{})
 }
 
 func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
@@ -20,10 +18,7 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 	go func() {
 		defer wg.Done()
 		for input := range source_channel {
-			ok := s.Function(input)
-			if !ok {
-				panic("error while sinking")
-			}
+			s.SinkFunction(input)
 		}
 	}()
 	return nil
