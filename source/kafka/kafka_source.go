@@ -3,7 +3,6 @@ package kafka
 import (
 	"context"
 	"log"
-	"sync"
 
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
@@ -30,11 +29,11 @@ func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaD
 	}
 }
 
-func (ks KafkaSource) Execute(wg *sync.WaitGroup, source_channel chan row.Row) chan row.Row {
+func (ks KafkaSource) Execute(source_channel chan row.Row, result_channel chan row.Row) {
 	st := functions.SourceTransformation{
 		SourceFunction: ks.next,
 	}
-	return st.Execute(wg, source_channel)
+	st.Execute(source_channel, result_channel)
 }
 
 func (ks *KafkaSource) next() (row.Row, bool) {

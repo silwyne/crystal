@@ -100,7 +100,12 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 	var result_channels []chan row.Row
 	for parallel_id := range operator.Parallelism {
 		log.Printf("layer %v : %v : starting parallel instance %v", id, operator.Transformer.GetName(), parallel_id)
-		result_channel := operator.Transformer.Execute(wg, source_channels[parallel_id])
+		wg.Add(1)
+		result_channel := make(chan row.Row)
+		go func() {
+			defer wg.Done()
+			operator.Transformer.Execute(source_channels[parallel_id], result_channel)
+		}()
 		result_channels = append(result_channels, result_channel)
 	}
 	return result_channels
