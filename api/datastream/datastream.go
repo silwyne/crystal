@@ -7,6 +7,7 @@ import (
 	"github.com/crystal/api/configuration"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
+	"github.com/crystal/api/row"
 )
 
 type DataStream struct {
@@ -49,8 +50,8 @@ func (ds *DataStream) SetConfigs(configs configuration.StreamConfig) {
 
 func (ds *DataStream) Print() *DataStream {
 	sinker := functions.SinkTransformation{
-		SinkFunction: func(i interface{}) {
-			fmt.Println("> " + i.(string))
+		SinkFunction: func(i row.Row) {
+			fmt.Println("> " + i.ToString())
 		},
 	}
 	stream := ds.Sink(sinker)
@@ -59,6 +60,6 @@ func (ds *DataStream) Print() *DataStream {
 
 func (ds *DataStream) PrintDetails() {
 	for id, operator := range ds.Operators {
-		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetTransformationType(), operator.Parallelism)
+		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetName(), operator.Parallelism)
 	}
 }

@@ -3,14 +3,14 @@ package functions
 import (
 	"sync"
 
-	"github.com/crystal/api/operation"
+	"github.com/crystal/api/row"
 )
 
 type SinkTransformation struct {
-	SinkFunction func(interface{})
+	SinkFunction func(row.Row)
 }
 
-func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (s SinkTransformation) Execute(wg *sync.WaitGroup, source_channel chan row.Row) chan row.Row {
 	if source_channel == nil {
 		panic("source channel can not be null")
 	}
@@ -24,6 +24,6 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 	return nil
 }
 
-func (s SinkTransformation) GetTransformationType() operation.TransformationType {
-	return operation.SINK
+func (SinkTransformation) GetName() string {
+	return "SINK"
 }

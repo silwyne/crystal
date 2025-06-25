@@ -3,27 +3,28 @@ package functions
 import (
 	"sync"
 
-	"github.com/crystal/api/operation"
+	"github.com/crystal/api/row"
 )
 
 type SourceTransformation struct {
-	SourceFunction func() (interface{}, bool)
+	SourceFunction func() (row.Row, bool)
 }
 
-func (s SourceTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (s SourceTransformation) Execute(wg *sync.WaitGroup, source_channel chan row.Row) chan row.Row {
 	wg.Add(1)
+	result_channel := make(chan row.Row)
 	go func() {
 		defer wg.Done()
 		for {
 			data, ok := s.SourceFunction()
 			if ok {
-				source_channel <- data
+				result_channel <- data
 			}
 		}
 	}()
-	return source_channel // sending as result channel
+	return result_channel
 }
 
-func (s SourceTransformation) GetTransformationType() operation.TransformationType {
-	return operation.SOURCE
+func (SourceTransformation) GetName() string {
+	return "SOURCE"
 }

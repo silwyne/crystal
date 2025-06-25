@@ -1,17 +1,12 @@
 package operation
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/crystal/api/row"
+)
 
 type Transformation interface {
-	ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{}
-	GetTransformationType() TransformationType
+	Execute(wg *sync.WaitGroup, source chan row.Row) chan row.Row
+	GetName() string
 }
-
-type TransformationType string
-
-const (
-	SOURCE  TransformationType = "SOURCE"
-	MAP     TransformationType = "MAP"
-	FLATMAP TransformationType = "FLATMAP"
-	SINK    TransformationType = "SINK"
-)
