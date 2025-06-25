@@ -29,11 +29,11 @@ func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaD
 	}
 }
 
-func (ks KafkaSource) Execute(source_channel chan row.Row, result_channel chan row.Row) {
+func (ks KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	st := functions.SourceTransformation{
 		SourceFunction: ks.next,
 	}
-	st.Execute(source_channel, result_channel)
+	st.Apply(source_channel, result_channel)
 }
 
 func (ks *KafkaSource) next() (row.Row, bool) {

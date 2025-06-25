@@ -59,7 +59,6 @@ func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 }
 
 func (se *StreamEnvironment) runLayers(operators []operation.Operator) {
-
 	var wg sync.WaitGroup
 	var all_result_channels [][]chan row.Row
 	for id, operator := range operators {
@@ -104,7 +103,7 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		result_channel := make(chan row.Row)
 		go func() {
 			defer wg.Done()
-			operator.Transformer.Execute(source_channels[parallel_id], result_channel)
+			operator.Transformer.Apply(source_channels[parallel_id], result_channel)
 		}()
 		result_channels = append(result_channels, result_channel)
 	}

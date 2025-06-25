@@ -8,7 +8,7 @@ type SourceTransformation struct {
 	SourceFunction func() (row.Row, bool)
 }
 
-func (s SourceTransformation) Execute(source_channel chan row.Row, result_channel chan row.Row) {
+func (s SourceTransformation) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	for {
 		data, ok := s.SourceFunction()
 		if ok {

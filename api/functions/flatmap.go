@@ -8,7 +8,7 @@ type FlatMapTransformation struct {
 	FlatMapFunction func(row.Row) ([]row.Row, bool)
 }
 
-func (fm FlatMapTransformation) Execute(source_channel chan row.Row, result_channel chan row.Row) {
+func (fm FlatMapTransformation) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	for input := range source_channel {
 		flatten_data, ok := fm.FlatMapFunction(input)
 		if ok {

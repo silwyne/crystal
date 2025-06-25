@@ -5,7 +5,7 @@ import (
 )
 
 type Transformation interface {
-	Execute(source chan row.Row, result chan row.Row)
+	Apply(source chan row.Row, result chan row.Row)
 	IsResultStateless() bool
 	GetName() string
 }
