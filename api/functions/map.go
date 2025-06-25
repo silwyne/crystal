@@ -2,19 +2,17 @@ package functions
 
 import (
 	"sync"
-
-	"github.com/crystal/api/operation"
 )
 
-type MapTransformation struct {
-	MapFunction func(interface{}) (interface{}, bool)
+type MapTransformation[IN any, OUT any] struct {
+	MapFunction func(IN) (OUT, bool)
 }
 
-func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (m MapTransformation[IN, OUT]) Execute(wg *sync.WaitGroup, source_channel chan IN) chan OUT {
 	if source_channel == nil {
 		panic("source channel can not be null")
 	}
-	result_channel := make(chan interface{})
+	result_channel := make(chan OUT)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -29,6 +27,6 @@ func (m MapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_chan
 	return result_channel
 }
 
-func (m MapTransformation) GetTransformationType() operation.TransformationType {
-	return operation.MAP
+func (MapTransformation[IN, OUT]) GetName() string {
+	return "MAP"
 }

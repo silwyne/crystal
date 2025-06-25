@@ -2,19 +2,17 @@ package functions
 
 import (
 	"sync"
-
-	"github.com/crystal/api/operation"
 )
 
-type FlatMapTransformation struct {
-	FlatMapFunction func(interface{}) ([]interface{}, bool)
+type FlatMapTransformation[IN any, OUT any] struct {
+	FlatMapFunction func(IN) ([]OUT, bool)
 }
 
-func (fm FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (fm FlatMapTransformation[IN, OUT]) Execute(wg *sync.WaitGroup, source_channel chan IN) chan OUT {
 	if source_channel == nil {
 		panic("source channel can not be null")
 	}
-	result_channel := make(chan interface{})
+	result_channel := make(chan OUT)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -31,6 +29,6 @@ func (fm FlatMapTransformation) ExecuteTransformation(wg *sync.WaitGroup, source
 	return result_channel
 }
 
-func (fm FlatMapTransformation) GetTransformationType() operation.TransformationType {
-	return operation.FLATMAP
+func (FlatMapTransformation[IN, OUT]) GetName() string {
+	return "FLAT_MAP"
 }

@@ -6,7 +6,6 @@ import (
 	"sync"
 
 	"github.com/crystal/api/functions"
-	"github.com/crystal/api/operation"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -27,22 +26,22 @@ func NewKafkaSource(brokers []string, topic, groupID string) *KafkaSource {
 	}
 }
 
-func (ks KafkaSource) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
-	st := functions.SourceTransformation{
+func (ks KafkaSource) Execute(wg *sync.WaitGroup, source_channel chan interface{}) chan kafka.Message {
+	st := functions.SourceTransformation[any, kafka.Message]{
 		SourceFunction: ks.next,
 	}
-	return st.ExecuteTransformation(wg, source_channel)
+	return st.Execute(wg, source_channel)
 }
 
-func (ks *KafkaSource) next() (interface{}, bool) {
+func (ks *KafkaSource) next() (kafka.Message, bool) {
 	m, err := ks.reader.ReadMessage(ks.ctx)
 	if err != nil {
 		log.Printf("Kafka read error: %v", err)
-		return nil, false
+		return m, false
 	}
 	return m, true
 }
 
-func (k KafkaSource) GetTransformationType() operation.TransformationType {
-	return operation.SOURCE
+func (k KafkaSource) GetName() string {
+	return "KAFKA_SOURCE"
 }

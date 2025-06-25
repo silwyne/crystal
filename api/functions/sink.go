@@ -2,15 +2,13 @@ package functions
 
 import (
 	"sync"
-
-	"github.com/crystal/api/operation"
 )
 
-type SinkTransformation struct {
-	SinkFunction func(interface{})
+type SinkTransformation[IN any, OUT any] struct {
+	SinkFunction func(IN)
 }
 
-func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_channel chan interface{}) chan interface{} {
+func (s SinkTransformation[IN, OUT]) Execute(wg *sync.WaitGroup, source_channel chan IN) chan OUT {
 	if source_channel == nil {
 		panic("source channel can not be null")
 	}
@@ -24,6 +22,6 @@ func (s SinkTransformation) ExecuteTransformation(wg *sync.WaitGroup, source_cha
 	return nil
 }
 
-func (s SinkTransformation) GetTransformationType() operation.TransformationType {
-	return operation.SINK
+func (SinkTransformation[IN, OUT]) GetName() string {
+	return "SINK"
 }
