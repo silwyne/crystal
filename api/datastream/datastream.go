@@ -20,11 +20,6 @@ func (ds *DataStream) Map(mapper functions.MapTransformation) *DataStream {
 	return result
 }
 
-func (ds *DataStream) FlatMap(flatmapper functions.FlatMapTransformation) *DataStream {
-	result := ds.AddTransformation(flatmapper)
-	return result
-}
-
 func (ds *DataStream) Sink(sinker functions.SinkTransformation) *DataStream {
 	result := ds.AddTransformation(sinker)
 	return result
