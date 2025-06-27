@@ -55,6 +55,6 @@ func (ds *DataStream) Print() *DataStream {
 
 func (ds *DataStream) PrintDetails() {
 	for id, operator := range ds.Operators {
-		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.Transformer.GetName(), operator.Parallelism)
+		log.Printf("n.%v name: %v, parallelism: %v\n", id, operator.GetTransformation().GetName(), operator.GetParallelism())
 	}
 }
