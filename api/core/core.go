@@ -100,7 +100,8 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 	for parallel_id := range operator.GetParallelism() {
 		log.Printf("layer %v : %v : starting parallel instance %v", id, operator.GetTransformation().GetName(), parallel_id)
 		wg.Add(1)
-		result_channel := make(chan row.Row)
+		queue_config := operator.GetQueueConfig()
+		result_channel := makeQueue(queue_config)
 		go func() {
 			defer wg.Done()
 			operator.GetTransformation().Apply(source_channels[parallel_id], result_channel)
@@ -108,4 +109,18 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		result_channels = append(result_channels, result_channel)
 	}
 	return result_channels
+}
+
+func makeQueue(queueConfig *operation.QueueConfiguration) chan row.Row {
+	var channel chan row.Row
+	if queueConfig.GetBuffered() {
+		buffer_length := queueConfig.GetBufferLength()
+		if buffer_length <= 0 {
+			panic("BufferLength can not be equal or less than 0")
+		}
+		channel = make(chan row.Row, buffer_length)
+	} else {
+		channel = make(chan row.Row)
+	}
+	return channel
 }

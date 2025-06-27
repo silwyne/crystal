@@ -39,6 +39,18 @@ func (ds *DataStream) SetParallelism(parallelism int) *DataStream {
 	return ds
 }
 
+func (ds *DataStream) SetQueueLength(bufferLength int) *DataStream {
+	last_operator := &ds.Operators[len(ds.Operators)-1]
+	last_operator.GetQueueConfig().SetBufferLength(bufferLength)
+	return ds
+}
+
+func (ds *DataStream) SetQueueUnbuffered() *DataStream {
+	last_operator := &ds.Operators[len(ds.Operators)-1]
+	last_operator.GetQueueConfig().SetBuffered(false)
+	return ds
+}
+
 func (ds *DataStream) SetConfigs(configs configuration.StreamConfig) {
 	ds.configs = configs
 }
