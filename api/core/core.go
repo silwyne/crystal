@@ -8,6 +8,7 @@ import (
 	"github.com/crystal/api/datastream"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
+	"github.com/crystal/api/operation/queue"
 	"github.com/crystal/api/row"
 )
 
@@ -111,7 +112,7 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 	return result_channels
 }
 
-func makeQueue(queueConfig *operation.QueueConfiguration) chan row.Row {
+func makeQueue(queueConfig *queue.QueueConfiguration) chan row.Row {
 	var channel chan row.Row
 	if queueConfig.GetBuffered() {
 		buffer_length := queueConfig.GetBufferLength()

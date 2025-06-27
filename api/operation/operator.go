@@ -1,10 +1,13 @@
 package operation
 
-import "github.com/crystal/api/operation/chainer"
+import (
+	"github.com/crystal/api/operation/chainer"
+	"github.com/crystal/api/operation/queue"
+)
 
 type Operator struct {
 	transformation Transformation
-	queueConfig    QueueConfiguration
+	queueConfig    queue.QueueConfiguration
 	parallelism    int
 	chainer        chainer.OperatorChainer
 }
@@ -13,7 +16,7 @@ func NewOperator(transformation Transformation, parallelism int) Operator {
 	theChainer := chainer.NewDirectOperatorChainer()
 	return Operator{
 		transformation: transformation,
-		queueConfig:    NewDefaultQueueConfiguration(),
+		queueConfig:    queue.NewDefaultQueueConfiguration(),
 		parallelism:    parallelism,
 		chainer:        theChainer,
 	}
@@ -39,6 +42,6 @@ func (o *Operator) GetTransformation() Transformation {
 	return o.transformation
 }
 
-func (o *Operator) GetQueueConfig() *QueueConfiguration {
+func (o *Operator) GetQueueConfig() *queue.QueueConfiguration {
 	return &o.queueConfig
 }

@@ -1,4 +1,4 @@
-package operation
+package queue
 
 type QueueConfiguration struct {
 	buffered     bool
