@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/crystal/api/configuration"
+	"github.com/crystal/api/core/chainer"
 	"github.com/crystal/api/datastream"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
@@ -91,7 +92,8 @@ func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator,
 		// using operator chainer
 		// to merge or direct or distribute channels into new parallelism that fits current operator
 		log.Printf("layer %v : %v : Executing Operator chainer \n", id, operator.GetTransformation().GetName())
-		source_channels = operator.GetChainer().ExecuteChaining(wg, last_result_channels, operator.GetParallelism())
+		chainer := chainer.NewDirectOperatorChainer()
+		source_channels = chainer.ExecuteChaining(wg, last_result_channels, operator.GetParallelism())
 	}
 	return source_channels
 }
