@@ -1,4 +1,4 @@
-package kafka
+package kafka_source
 
 import (
 	"context"
@@ -25,11 +25,12 @@ func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaD
 			Topic:   topic,
 			GroupID: groupID,
 		}),
-		ctx: context.Background(),
+		ctx:          context.Background(),
+		deserializer: deserializer,
 	}
 }
 
-func (ks KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
+func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	st := functions.SourceTransformation{
 		SourceFunction: ks.next,
 	}
@@ -46,7 +47,7 @@ func (ks *KafkaSource) next() (row.Row, bool) {
 	return row, ok
 }
 
-func (KafkaSource) IsResultStateless() bool {
+func (k KafkaSource) IsResultStateless() bool {
 	return true
 }
 

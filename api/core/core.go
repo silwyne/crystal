@@ -7,7 +7,6 @@ import (
 	"github.com/crystal/api/configuration"
 	"github.com/crystal/api/core/chainer"
 	"github.com/crystal/api/datastream"
-	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation"
 	"github.com/crystal/api/operation/queue"
 	"github.com/crystal/api/row"
@@ -34,7 +33,7 @@ func (se *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment 
 	return se
 }
 
-func (se *StreamEnvironment) FromSource(source functions.SourceTransformation) *datastream.DataStream {
+func (se *StreamEnvironment) FromSource(source operation.Transformation) *datastream.DataStream {
 	stream := datastream.DataStream{}
 	stream.SetConfigs(se.configs)
 	streamWithTransformation := stream.AddTransformation(source)

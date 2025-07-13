@@ -17,10 +17,10 @@ func (s SourceTransformation) Apply(source_channel chan row.Row, result_channel 
 	}
 }
 
-func (SourceTransformation) IsResultStateless() bool {
+func (s SourceTransformation) IsResultStateless() bool {
 	return true
 }
 
-func (SourceTransformation) GetName() string {
+func (s SourceTransformation) GetName() string {
 	return "SOURCE"
 }
