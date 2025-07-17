@@ -29,10 +29,7 @@ func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaD
 		ctx:          context.Background(),
 		deserializer: deserializer,
 	}
-	source.SourceTransformation = functions.SourceTransformation{
-		SourceFunction: source.next,
-	}
-
+	source.SourceFunction = source.next
 	return &source
 }
 
