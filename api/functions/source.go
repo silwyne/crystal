@@ -5,15 +5,16 @@ import (
 )
 
 type SourceTransformation struct {
-	SourceFunction func() (row.Row, bool)
+	SourceFunction func() (row.Row, error)
 }
 
 func (s SourceTransformation) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	for {
-		data, ok := s.SourceFunction()
-		if ok {
-			result_channel <- data
+		data, err := s.SourceFunction()
+		if err != nil {
+			panic(err)
 		}
+		result_channel <- data
 	}
 }
 

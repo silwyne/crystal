@@ -5,15 +5,16 @@ import (
 )
 
 type MapTransformation struct {
-	MapFunction func(row.Row) (row.Row, bool)
+	MapFunction func(row.Row) (row.Row, error)
 }
 
 func (m MapTransformation) Apply(source_channel chan row.Row, result_channel chan row.Row) {
 	for input := range source_channel {
 		data, ok := m.MapFunction(input)
-		if ok {
-			result_channel <- data
+		if ok != nil {
+			panic(ok)
 		}
+		result_channel <- data
 	}
 }
 

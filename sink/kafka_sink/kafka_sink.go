@@ -2,7 +2,6 @@ package kafka_sink
 
 import (
 	"context"
-	"log"
 
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
@@ -16,7 +15,7 @@ type KafkaSink struct {
 	Serializer KafkaSerializer
 }
 
-type KafkaSerializer func(row.Row) (kafka.Message, bool)
+type KafkaSerializer func(row.Row) (kafka.Message, error)
 
 func NewKafkaSink(brokers string, topic string, serializer KafkaSerializer) *KafkaSink {
 	kafka_writer := KafkaSink{
@@ -37,11 +36,14 @@ func (ks *KafkaSink) Apply(source_channel chan row.Row, result_channel chan row.
 }
 
 func (ks *KafkaSink) write(input row.Row) {
-	serialized_message, ok := ks.Serializer(input)
-	if !ok {
-		log.Panicf("Kafka write error: %v", input)
+	serialized_message, err := ks.Serializer(input)
+	if err != nil {
+		panic(err)
 	}
-	ks.writer.WriteMessages(ks.ctx, serialized_message)
+	err = ks.writer.WriteMessages(ks.ctx, serialized_message)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (k KafkaSink) IsResultStateless() bool {

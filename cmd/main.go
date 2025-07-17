@@ -15,27 +15,27 @@ func main() {
 	streamEnv.SetParallelism(4)
 
 	source := functions.SourceTransformation{
-		SourceFunction: func() (row.Row, bool) {
-			time.Sleep(50 * time.Millisecond) // simulate data rate
+		SourceFunction: func() (row.Row, error) {
+			time.Sleep(100 * time.Millisecond) // simulate data rate
 			my_row := row.From("sourceTime: " + time.Now().Local().String())
-			return my_row, true
+			return my_row, nil
 		},
 	}
 
 	// transforming stream into something new
 	mapper := functions.MapTransformation{
-		MapFunction: func(input row.Row) (row.Row, bool) {
+		MapFunction: func(input row.Row) (row.Row, error) {
 			str := "transform: " + time.Now().Local().String()
 			input.AddColumn(str)
-			return input, true
+			return input, nil
 		},
 	}
 
-	serializer := func(in row.Row) (kafka.Message, bool) {
+	serializer := func(in row.Row) (kafka.Message, error) {
 		message := kafka.Message{
 			Value: []byte(in.ToString()),
 		}
-		return message, true
+		return message, nil
 	}
 
 	sinker := kafka_sink.NewKafkaSink(

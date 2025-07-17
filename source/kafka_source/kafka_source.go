@@ -2,7 +2,6 @@ package kafka_source
 
 import (
 	"context"
-	"log"
 
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
@@ -17,7 +16,7 @@ type KafkaSource struct {
 	deserializer KafkaDeserializer
 }
 
-type KafkaDeserializer func(kafka.Message) (row.Row, bool)
+type KafkaDeserializer func(kafka.Message) (row.Row, error)
 
 func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaDeserializer) *KafkaSource {
 	source := KafkaSource{
@@ -37,14 +36,16 @@ func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan ro
 	ks.SourceTransformation.Apply(source_channel, result_channel)
 }
 
-func (ks *KafkaSource) next() (row.Row, bool) {
+func (ks *KafkaSource) next() (row.Row, error) {
 	kafka_message, err := ks.reader.ReadMessage(ks.ctx)
 	if err != nil {
-		log.Printf("Kafka read error: %v", err)
-		return row.Row{}, false
+		panic(err)
 	}
-	row, ok := ks.deserializer(kafka_message)
-	return row, ok
+	row, err := ks.deserializer(kafka_message)
+	if err != nil {
+		panic(err)
+	}
+	return row, nil
 }
 
 func (k KafkaSource) IsResultStateless() bool {
