@@ -11,6 +11,7 @@ import (
 )
 
 type KafkaSource struct {
+	functions.SourceTransformation
 	reader       *kafka.Reader
 	ctx          context.Context
 	deserializer KafkaDeserializer
@@ -19,7 +20,7 @@ type KafkaSource struct {
 type KafkaDeserializer func(kafka.Message) (row.Row, bool)
 
 func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaDeserializer) *KafkaSource {
-	return &KafkaSource{
+	source := KafkaSource{
 		reader: kafka.NewReader(kafka.ReaderConfig{
 			Brokers: brokers,
 			Topic:   topic,
@@ -28,13 +29,15 @@ func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaD
 		ctx:          context.Background(),
 		deserializer: deserializer,
 	}
+	source.SourceTransformation = functions.SourceTransformation{
+		SourceFunction: source.next,
+	}
+
+	return &source
 }
 
 func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
-	st := functions.SourceTransformation{
-		SourceFunction: ks.next,
-	}
-	st.Apply(source_channel, result_channel)
+	ks.SourceTransformation.Apply(source_channel, result_channel)
 }
 
 func (ks *KafkaSource) next() (row.Row, bool) {
