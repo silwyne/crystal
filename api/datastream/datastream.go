@@ -20,7 +20,7 @@ func (ds *DataStream) Map(mapper functions.MapTransformation) *DataStream {
 	return result
 }
 
-func (ds *DataStream) Sink(sinker functions.SinkTransformation) *DataStream {
+func (ds *DataStream) Sink(sinker operation.Transformation) *DataStream {
 	result := ds.AddTransformation(sinker)
 	return result
 }
