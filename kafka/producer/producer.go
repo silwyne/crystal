@@ -2,32 +2,39 @@ package producer
 
 import (
 	"context"
+	"log"
 
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
-
-	"github.com/segmentio/kafka-go"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 type KafkaSink struct {
 	functions.SinkTransformation
 	ctx        context.Context
-	writer     *kafka.Writer
+	client     *kgo.Client
 	Serializer KafkaSerializer
 }
 
-type KafkaSerializer func(row.Row) (kafka.Message, error)
+type KafkaSerializer func(row.Row) (*kgo.Record, error)
 
 func NewKafkaSink(brokers string, topic string, serializer KafkaSerializer) *KafkaSink {
+	opts := []kgo.Opt{
+		kgo.SeedBrokers(brokers),
+		kgo.DefaultProduceTopic(topic),
+		kgo.ClientID("crystal-sink-id"),
+	}
+	client, err := kgo.NewClient(opts...)
+	if err != nil {
+		log.Fatalf("unable to create kafka client: %v", err)
+	}
+
 	kafka_writer := KafkaSink{
-		writer: &kafka.Writer{
-			Addr:     kafka.TCP(brokers),
-			Topic:    topic,
-			Balancer: &kafka.LeastBytes{},
-		},
+		client:     client,
 		ctx:        context.Background(),
 		Serializer: serializer,
 	}
+
 	kafka_writer.SinkFunction = kafka_writer.write
 	return &kafka_writer
 }
@@ -39,12 +46,16 @@ func (ks *KafkaSink) Apply(source_channel chan row.Row, result_channel chan row.
 func (ks *KafkaSink) write(input row.Row) {
 	serialized_message, err := ks.Serializer(input)
 	if err != nil {
+		log.Fatalf("failed to serialize message: %v", err)
 		panic(err)
 	}
-	err = ks.writer.WriteMessages(ks.ctx, serialized_message)
-	if err != nil {
-		panic(err)
-	}
+
+	ks.client.Produce(ks.ctx, serialized_message, func(r *kgo.Record, err error) {
+		if err != nil {
+			log.Fatalf("failed to produce message: %v", err)
+			panic(err)
+		}
+	})
 }
 
 func (k KafkaSink) IsResultStateless() bool {

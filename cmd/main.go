@@ -4,9 +4,8 @@ import (
 	"github.com/crystal/api/core"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
-	"github.com/crystal/kafka/producer"
-
-	"github.com/segmentio/kafka-go"
+	"github.com/crystal/kafka/consumer"
+	"github.com/twmb/franz-go/pkg/kgo"
 
 	"time"
 )
@@ -15,13 +14,16 @@ func main() {
 	streamEnv := core.NewStreamEnvironment()
 	streamEnv.SetParallelism(4)
 
-	source := functions.SourceTransformation{
-		SourceFunction: func() (row.Row, error) {
-			time.Sleep(100 * time.Millisecond) // simulate data rate
-			my_row := row.From("sourceTime: " + time.Now().Local().String())
-			return my_row, nil
-		},
+	deserializer := func(in *kgo.Record) (row.Row, error) {
+		return row.From(string(in.Value)), nil
 	}
+
+	source := consumer.NewKafkaSource(
+		"localhost:9092",
+		"test-0",
+		"test-group-id",
+		deserializer,
+	)
 
 	// transforming stream into something new
 	mapper := functions.MapTransformation{
@@ -32,22 +34,9 @@ func main() {
 		},
 	}
 
-	serializer := func(in row.Row) (kafka.Message, error) {
-		message := kafka.Message{
-			Value: []byte(in.ToString()),
-		}
-		return message, nil
-	}
-
-	sinker := producer.NewKafkaSink(
-		"localhost:9092",
-		"test-0",
-		serializer,
-	)
-
 	stream := streamEnv.FromSource(source)
 	stream = stream.Map(mapper)
-	stream = stream.Sink(sinker)
+	stream = stream.Print()
 
 	// running the container
 	streamEnv.Execute(stream)

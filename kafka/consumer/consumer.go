@@ -2,50 +2,60 @@ package consumer
 
 import (
 	"context"
+	"log"
 
-	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
-
-	"github.com/segmentio/kafka-go"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 type KafkaSource struct {
-	functions.SourceTransformation
-	reader       *kafka.Reader
+	client       *kgo.Client
 	ctx          context.Context
 	deserializer KafkaDeserializer
 }
 
-type KafkaDeserializer func(kafka.Message) (row.Row, error)
+type KafkaDeserializer func(*kgo.Record) (row.Row, error)
 
-func NewKafkaSource(brokers []string, topic, groupID string, deserializer KafkaDeserializer) *KafkaSource {
+func NewKafkaSource(brokers string, topic string, groupID string, deserializer KafkaDeserializer) *KafkaSource {
+	opts := []kgo.Opt{
+		kgo.SeedBrokers(brokers),
+		kgo.ConsumeTopics(topic),
+		kgo.ConsumerGroup(groupID),
+	}
+	client, err := kgo.NewClient(opts...)
+	if err != nil {
+		log.Fatalf("unable to create kafka client: %v", err)
+	}
+
 	source := KafkaSource{
-		reader: kafka.NewReader(kafka.ReaderConfig{
-			Brokers: brokers,
-			Topic:   topic,
-			GroupID: groupID,
-		}),
+		client:       client,
 		ctx:          context.Background(),
 		deserializer: deserializer,
 	}
-	source.SourceFunction = source.next
 	return &source
 }
 
 func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
-	ks.SourceTransformation.Apply(source_channel, result_channel)
-}
 
-func (ks *KafkaSource) next() (row.Row, error) {
-	kafka_message, err := ks.reader.ReadMessage(ks.ctx)
-	if err != nil {
-		panic(err)
+	for {
+		fetches := ks.client.PollFetches(ks.ctx)
+		if fetches.Err() != nil {
+			log.Panicf("Error fetching records: %v \n", fetches.Err())
+			panic(fetches.Err())
+		}
+
+		iter := fetches.RecordIter()
+		for !iter.Done() {
+			record := iter.Next()
+			deserialized_m, err := ks.deserializer(record)
+			if err != nil {
+				log.Panicf("Error Deserializing KafkaMessage: %v, Error: %v \n", record, err)
+				panic(fetches.Err())
+			}
+			println(deserialized_m)
+			result_channel <- deserialized_m
+		}
 	}
-	row, err := ks.deserializer(kafka_message)
-	if err != nil {
-		panic(err)
-	}
-	return row, nil
 }
 
 func (k KafkaSource) IsResultStateless() bool {
