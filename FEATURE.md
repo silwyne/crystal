@@ -26,3 +26,7 @@ A server that holds important metrics and visualizes them.
     - latency
     - job graph
     - parallelism
+
+
+## Fixes
+- make sure you clean go.mod and go.sum to remove dependencies  related to segment-io/kafka-go
