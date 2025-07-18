@@ -4,7 +4,8 @@ import (
 	"github.com/crystal/api/core"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
-	"github.com/crystal/sink/kafka_sink"
+	"github.com/crystal/kafka/producer"
+
 	"github.com/segmentio/kafka-go"
 
 	"time"
@@ -38,7 +39,7 @@ func main() {
 		return message, nil
 	}
 
-	sinker := kafka_sink.NewKafkaSink(
+	sinker := producer.NewKafkaSink(
 		"localhost:9092",
 		"test-0",
 		serializer,

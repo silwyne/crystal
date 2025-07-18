@@ -1,10 +1,11 @@
-package kafka_sink
+package producer
 
 import (
 	"context"
 
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
+
 	"github.com/segmentio/kafka-go"
 )
 
