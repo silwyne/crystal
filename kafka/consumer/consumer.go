@@ -52,7 +52,6 @@ func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan ro
 				log.Panicf("Error Deserializing KafkaMessage: %v, Error: %v \n", record, err)
 				panic(fetches.Err())
 			}
-			println(deserialized_m)
 			result_channel <- deserialized_m
 		}
 	}
