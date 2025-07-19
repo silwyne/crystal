@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/crystal/api/operation/signal"
 	"github.com/crystal/api/row"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
@@ -35,13 +36,12 @@ func NewKafkaSource(brokers string, topic string, groupID string, deserializer K
 	return &source
 }
 
-func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) {
-
+func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan row.Row) signal.Signal {
 	for {
 		fetches := ks.client.PollFetches(ks.ctx)
 		if fetches.Err() != nil {
 			log.Panicf("Error fetching records: %v \n", fetches.Err())
-			panic(fetches.Err())
+			return signal.FAILURE
 		}
 
 		iter := fetches.RecordIter()
@@ -50,7 +50,7 @@ func (ks *KafkaSource) Apply(source_channel chan row.Row, result_channel chan ro
 			deserialized_m, err := ks.deserializer(record)
 			if err != nil {
 				log.Panicf("Error Deserializing KafkaMessage: %v, Error: %v \n", record, err)
-				panic(fetches.Err())
+				return signal.FAILURE
 			}
 			result_channel <- deserialized_m
 		}

@@ -3,6 +3,7 @@ package datagenerator
 import (
 	"time"
 
+	"github.com/crystal/api/operation/signal"
 	"github.com/crystal/api/row"
 )
 
@@ -33,7 +34,7 @@ func NewDataGenerator(infinite bool, ratePerSecond int, durationSecond int, gene
 	}
 }
 
-func (dg *DataGenerator) Apply(source_channel chan row.Row, result_channel chan row.Row) {
+func (dg *DataGenerator) Apply(source_channel chan row.Row, result_channel chan row.Row) signal.Signal {
 	base_start_time := time.Now().UnixMilli()
 	duration_millisecond := int64(dg.durationSecond * 1000)
 	round_left := dg.ratePerSecond
@@ -56,7 +57,7 @@ func (dg *DataGenerator) Apply(source_channel chan row.Row, result_channel chan 
 			if !dg.infinite {
 				total_time_passed := now_time - base_start_time
 				if total_time_passed >= duration_millisecond {
-					return
+					return signal.SUCCESS
 				}
 			}
 

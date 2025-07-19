@@ -107,6 +107,9 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		go func() {
 			defer wg.Done()
 			operator.GetTransformation().Apply(source_channels[parallel_id], result_channel)
+			/* TODO: each Apply(source_chan, result_chan) returns a signal of FAILURE or SUCCESS
+			Please Implement of how to handle the signal
+			*/
 		}()
 		result_channels = append(result_channels, result_channel)
 	}
