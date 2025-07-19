@@ -4,8 +4,7 @@ import (
 	"github.com/crystal/api/core"
 	"github.com/crystal/api/functions"
 	"github.com/crystal/api/row"
-	"github.com/crystal/kafka/consumer"
-	"github.com/twmb/franz-go/pkg/kgo"
+	"github.com/crystal/datagenerator"
 
 	"time"
 )
@@ -14,16 +13,13 @@ func main() {
 	streamEnv := core.NewStreamEnvironment()
 	streamEnv.SetParallelism(4)
 
-	deserializer := func(in *kgo.Record) (row.Row, error) {
-		return row.From(string(in.Value)), nil
+	infiniteSource := false
+	ratePerSecond := 1
+	sourceDuration := 10
+	generator := func() row.Row {
+		return row.From(time.Now().Local().String())
 	}
-
-	source := consumer.NewKafkaSource(
-		"localhost:9092",
-		"test-0",
-		"test-group-id",
-		deserializer,
-	)
+	source := datagenerator.NewDataGenerator(infiniteSource, ratePerSecond, sourceDuration, generator)
 
 	// transforming stream into something new
 	mapper := functions.MapTransformation{
