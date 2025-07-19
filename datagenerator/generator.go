@@ -93,5 +93,5 @@ func (dg DataGenerator) IsResultStateless() bool {
 }
 
 func (dg DataGenerator) GetName() string {
-	return "DATA_okasdGENERATOR_SOURCE"
+	return "DATA_GENERATOR_SOURCE"
 }
