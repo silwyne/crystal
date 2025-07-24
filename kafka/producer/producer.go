@@ -4,14 +4,12 @@ import (
 	"context"
 	"log"
 
-	"github.com/crystal/api/functions"
 	"github.com/crystal/api/operation/signal"
 	"github.com/crystal/api/row"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 type KafkaSink struct {
-	functions.SinkTransformation
 	ctx        context.Context
 	client     *kgo.Client
 	Serializer KafkaSerializer
@@ -36,7 +34,6 @@ func NewKafkaSink(brokers string, topic string, serializer KafkaSerializer) *Kaf
 		Serializer: serializer,
 	}
 
-	kafka_writer.SinkFunction = kafka_writer.write
 	return &kafka_writer
 }
 
@@ -60,10 +57,6 @@ func (ks *KafkaSink) Apply(source_channel chan row.Row, result_channel chan row.
 		}
 	}
 	return signal.SUCCESS
-}
-
-func (ks *KafkaSink) write(input row.Row) {
-
 }
 
 func (k KafkaSink) IsResultStateless() bool {
