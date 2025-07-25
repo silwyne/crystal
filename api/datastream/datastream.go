@@ -39,6 +39,12 @@ func (ds *DataStream) SetParallelism(parallelism int) *DataStream {
 	return ds
 }
 
+func (ds *DataStream) DisableChaining() *DataStream {
+	last_operator := &ds.Operators[len(ds.Operators)-1]
+	last_operator.SetChaining(false)
+	return ds
+}
+
 func (ds *DataStream) SetQueueLength(bufferLength int) *DataStream {
 	last_operator := &ds.Operators[len(ds.Operators)-1]
 	last_operator.GetQueueConfig().SetBufferLength(bufferLength)
