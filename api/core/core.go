@@ -86,10 +86,9 @@ func getSourceChannels(wg *sync.WaitGroup, id int, operator *operation.Operator,
 		}
 	} else {
 		log.Printf("layer %v : %v : chaining source channels from last result channels \n", id, operator.GetTransformation().GetName())
-		// get last result channels
+
 		last_result_channels := all_result_channels[len(all_result_channels)-1]
-		// using operator chainer
-		// to merge or direct or distribute channels into new parallelism that fits current operator
+
 		log.Printf("layer %v : %v : Executing Operator chainer \n", id, operator.GetTransformation().GetName())
 		chainer := chainer.NewDirectOperatorChainer()
 		source_channels = chainer.ExecuteChaining(wg, last_result_channels, operator.GetParallelism())
@@ -103,7 +102,7 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		log.Printf("layer %v : %v : starting parallel instance %v", id, operator.GetTransformation().GetName(), parallel_id)
 		wg.Add(1)
 		queue_config := operator.GetQueueConfig()
-		result_channel := makeQueue(queue_config)
+		result_channel := queue.MakeQueue(queue_config)
 		go func() {
 			defer wg.Done()
 			operator.GetTransformation().Apply(source_channels[parallel_id], result_channel)
@@ -114,18 +113,4 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		result_channels = append(result_channels, result_channel)
 	}
 	return result_channels
-}
-
-func makeQueue(queueConfig *queue.QueueConfiguration) chan row.Row {
-	var channel chan row.Row
-	if queueConfig.GetBuffered() {
-		buffer_length := queueConfig.GetBufferLength()
-		if buffer_length <= 0 {
-			panic("BufferLength can not be equal or less than 0")
-		}
-		channel = make(chan row.Row, buffer_length)
-	} else {
-		channel = make(chan row.Row)
-	}
-	return channel
 }
