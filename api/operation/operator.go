@@ -4,7 +4,15 @@ import (
 	"log"
 
 	"github.com/crystal/api/operation/queue"
+	"github.com/crystal/api/operation/signal"
+	"github.com/crystal/api/row"
 )
+
+type Transformation interface {
+	Apply(source chan row.Row, result chan row.Row) signal.Signal
+	IsResultStateless() bool
+	GetName() string
+}
 
 type Operator struct {
 	transformation Transformation
