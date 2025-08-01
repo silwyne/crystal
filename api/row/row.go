@@ -18,6 +18,10 @@ func (r *Row) AddColumn(in interface{}) *Row {
 	return r
 }
 
+func (r *Row) GetFieldByPosition(position int) any {
+	return r.data[position]
+}
+
 func (r Row) ToString() string {
 	var sb strings.Builder
 	for i, item := range r.data {
