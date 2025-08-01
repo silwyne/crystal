@@ -10,6 +10,7 @@ import (
 	"github.com/crystal/api/operation"
 	"github.com/crystal/api/operation/queue"
 	"github.com/crystal/api/operation/signal"
+	"github.com/crystal/api/preconditions"
 	"github.com/crystal/api/row"
 )
 
@@ -27,9 +28,7 @@ func NewStreamEnvironment() *StreamEnvironment {
 }
 
 func (se *StreamEnvironment) SetParallelism(parallelism int) *StreamEnvironment {
-	if parallelism < 1 {
-		panic("parallelism can't be less than 1")
-	}
+	preconditions.CheckTrue(parallelism >= 1, "parallelism can't be less than 1")
 	se.configs.GlobalParallelism = parallelism
 	return se
 }
@@ -43,16 +42,14 @@ func (se *StreamEnvironment) FromSource(source operation.Transformation) *datast
 
 func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 	operators := container.Operators
-	if len(operators) == 0 {
-		panic("No transformations in pipeline")
-	}
+	preconditions.CheckNotEmpty(operators, "No transformations in pipeline")
 
 	// currently we only support for DIRECT_CHAIN strategy and this loop only chains operator with that
 	for id, operator := range operators {
 		if id+1 < len(operators) {
-			if operator.GetParallelism() != operators[id+1].GetParallelism() {
-				panic("only supporting DIRECT_CHAIN between operators so all operators parallelism must be same")
-			}
+			preconditions.CheckTrue(
+				operator.GetParallelism() == operators[id+1].GetParallelism(),
+				"only supporting DIRECT_CHAIN between operators so all operators parallelism must be same")
 		}
 	}
 
