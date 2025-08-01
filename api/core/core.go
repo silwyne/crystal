@@ -9,6 +9,7 @@ import (
 	"github.com/crystal/api/datastream"
 	"github.com/crystal/api/operation"
 	"github.com/crystal/api/operation/queue"
+	"github.com/crystal/api/operation/signal"
 	"github.com/crystal/api/row"
 )
 
@@ -57,6 +58,7 @@ func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
 
 	log.Printf("ignoring operators parallelism using global parallelism %v\n", se.configs.GlobalParallelism)
 	se.runLayers(operators)
+	log.Printf("Job execution is Finished.")
 }
 
 func (se *StreamEnvironment) runLayers(operators []operation.Operator) {
@@ -105,10 +107,15 @@ func startLayer(wg *sync.WaitGroup, id int, operator *operation.Operator, source
 		result_channel := queue.MakeQueue(queue_config)
 		go func() {
 			defer wg.Done()
-			operator.GetTransformation().Apply(source_channels[parallel_id], result_channel)
-			/* TODO: each Apply(source_chan, result_chan) returns a signal of FAILURE or SUCCESS
-			Please Implement of how to handle the signal
-			*/
+			sig := operator.GetTransformation().Apply(source_channels[parallel_id], result_channel)
+			if sig == signal.FAILURE {
+				log.Printf("Operator Failed: %v, intance: %v\n", operator.GetTransformation().GetName(), parallel_id)
+			}
+			if sig == signal.SUCCESS {
+				log.Printf("Operator Succeded: %v, intance: %v\n", operator.GetTransformation().GetName(), parallel_id)
+			}
+			// closing
+			close(result_channel)
 		}()
 		result_channels = append(result_channels, result_channel)
 	}
