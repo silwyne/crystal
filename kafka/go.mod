@@ -3,10 +3,10 @@ module github.com/crystal/kafka
 go 1.23.10
 
 require (
-    github.com/crystal/api v0.0.1 
+    github.com/crystal v0.0.1 
 )
 
-replace github.com/crystal/api => ../api
+replace github.com/crystal => ..
 
 
 require (
