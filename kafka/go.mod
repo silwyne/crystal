@@ -1,12 +1,12 @@
-module github.com/crystal/kafka
+module github.com/Silwyne/crystal/kafka
 
 go 1.23.10
 
 require (
-    github.com/crystal v0.0.1 
+    github.com/Silwyne/crystal v0.0.1 
 )
 
-replace github.com/crystal => ..
+replace github.com/Silwyne/crystal => ..
 
 
 require (

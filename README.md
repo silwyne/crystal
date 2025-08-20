@@ -10,8 +10,8 @@ Crystal aims to provide an efficient foundation for stream processing workloads 
 - 🖥️ Currently non-distributed and single-node scale
 
 # Features
-- 📦 Kafka package for consuming from and producing to Kafka topics
-- ♻️ Designed for stream aggregation and join in an optimized manner
+- 📦 Kafka package for consume and producing operations
+- ♻️ Is getting Designed for stream aggregation and join in an optimized manner
 - 🧩 Modular architecture facilitating extensibility (e.g., add other sources/sinks)
 - 🛠️ Lightweight core for efficient stream processing pipelines
 

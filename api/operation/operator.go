@@ -3,9 +3,9 @@ package operation
 import (
 	"log"
 
-	"github.com/crystal/api/operation/queue"
-	"github.com/crystal/api/operation/signal"
-	"github.com/crystal/api/row"
+	"github.com/Silwyne/crystal/api/operation/queue"
+	"github.com/Silwyne/crystal/api/operation/signal"
+	"github.com/Silwyne/crystal/api/row"
 )
 
 type Transformation interface {

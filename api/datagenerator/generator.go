@@ -3,8 +3,8 @@ package datagenerator
 import (
 	"time"
 
-	"github.com/crystal/api/operation/signal"
-	"github.com/crystal/api/row"
+	"github.com/Silwyne/crystal/api/operation/signal"
+	"github.com/Silwyne/crystal/api/row"
 )
 
 type DataGenerator struct {

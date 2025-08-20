@@ -3,7 +3,7 @@ package chainer
 import (
 	"sync"
 
-	"github.com/crystal/api/row"
+	"github.com/Silwyne/crystal/api/row"
 )
 
 type OperatorChainer interface {

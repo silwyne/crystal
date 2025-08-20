@@ -1,6 +1,6 @@
 package queue
 
-import "github.com/crystal/api/row"
+import "github.com/Silwyne/crystal/api/row"
 
 func MakeQueue(queueConfig *QueueConfiguration) chan row.Row {
 	var channel chan row.Row

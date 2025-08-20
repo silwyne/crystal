@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/crystal/api/configuration"
-	"github.com/crystal/api/functions"
-	"github.com/crystal/api/operation"
-	"github.com/crystal/api/row"
+	"github.com/Silwyne/crystal/api/configuration"
+	"github.com/Silwyne/crystal/api/functions"
+	"github.com/Silwyne/crystal/api/operation"
+	"github.com/Silwyne/crystal/api/row"
 )
 
 type DataStream struct {
