@@ -1,0 +1,26 @@
+name: Run Go Tests
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.10'
+
+    - name: Make script executable
+      run: chmod +x run_all_tests.sh
+
+    - name: Run all Go tests
+      run: ./run_all_tests.sh

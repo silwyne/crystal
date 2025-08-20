@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/crystal/api/configuration"
-	"github.com/crystal/api/functions"
-	"github.com/crystal/api/operation"
-	"github.com/crystal/api/row"
+	"github.com/Silwyne/crystal/api/configuration"
+	"github.com/Silwyne/crystal/api/functions"
+	"github.com/Silwyne/crystal/api/operation"
+	"github.com/Silwyne/crystal/api/row"
 )
 
 type DataStream struct {
@@ -36,6 +36,12 @@ func (ds *DataStream) AddTransformation(transformer operation.Transformation) *D
 func (ds *DataStream) SetParallelism(parallelism int) *DataStream {
 	last_operator := &ds.Operators[len(ds.Operators)-1]
 	last_operator.SetParallelism(parallelism)
+	return ds
+}
+
+func (ds *DataStream) DisableChaining() *DataStream {
+	last_operator := &ds.Operators[len(ds.Operators)-1]
+	last_operator.SetChaining(false)
 	return ds
 }
 
