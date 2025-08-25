@@ -3,7 +3,7 @@ module github.com/Silwyne/crystal/kafka
 go 1.23.10
 
 require (
-    github.com/Silwyne/crystal v0.0.1 
+    github.com/Silwyne/crystal v0.0.2 
 )
 
 replace github.com/Silwyne/crystal => ..
