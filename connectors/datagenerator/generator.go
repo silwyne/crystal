@@ -16,30 +16,18 @@ type DataGenerator struct {
 
 type Generator func() row.Row
 
-func NewDataGenerator(infinite bool, ratePerSecond int, durationSecond int, generator Generator) *DataGenerator {
-	if ratePerSecond < 1 {
-		panic("ratePerSecond can't be lower than 1")
-	}
-	if !infinite && durationSecond < 1 {
-		panic("durationSecond can't be lower than 1")
-	}
+func NewDataGenerator(rateLimiter ratelimiter.RateLimiter, generator Generator) *DataGenerator {
 	if generator == nil {
 		panic("generator can't be nil")
 	}
 
-	// Create rate limiter instance
-	rl := ratelimiter.NewTokenBucketRateLimiter(
-		int64(ratePerSecond),
-		int64(durationSecond),
-		infinite,
-	)
+	if rateLimiter == nil {
+		panic("ratelimitter can't be nil")
+	}
 
 	return &DataGenerator{
-		infinite:       infinite,
-		ratePerSecond:  ratePerSecond,
-		durationSecond: durationSecond,
-		generator:      generator,
-		rateLimiter:    rl,
+		generator:   generator,
+		rateLimiter: rateLimiter,
 	}
 }
 

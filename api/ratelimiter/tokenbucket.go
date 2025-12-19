@@ -18,6 +18,12 @@ type TokenBucketRateLimiter struct {
 
 // NewTokenBucketRateLimiter creates a new rate limiter
 func NewTokenBucketRateLimiter(ratePerSecond int64, durationSecond int64, infinite bool) *TokenBucketRateLimiter {
+	if ratePerSecond < 1 {
+		panic("ratePerSecond can't be lower than 1")
+	}
+	if !infinite && durationSecond < 1 {
+		panic("durationSecond can't be lower than 1 when your job is finite")
+	}
 	return &TokenBucketRateLimiter{
 		ratePerSecond: ratePerSecond,
 		durationMs:    durationSecond * 1000,
