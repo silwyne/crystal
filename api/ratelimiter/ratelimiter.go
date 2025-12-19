@@ -10,6 +10,13 @@ type RateLimiter interface {
 	Stop()
 }
 
+type RateLimiterStatus int
+
+const (
+	RUNNING RateLimiterStatus = iota
+	STOPPED
+)
+
 // TokenBucketRateLimiter implements a token bucket rate limiter
 type TokenBucketRateLimiter struct {
 	ratePerSecond int64
@@ -19,7 +26,7 @@ type TokenBucketRateLimiter struct {
 	tokens     int64
 	lastRefill int64
 	startTime  int64
-	stopCh     chan struct{}
+	status     RateLimiterStatus
 }
 
 // NewTokenBucketRateLimiter creates a new rate limiter
@@ -31,7 +38,7 @@ func NewTokenBucketRateLimiter(ratePerSecond int64, durationSecond int64, infini
 		tokens:        ratePerSecond,
 		lastRefill:    time.Now().UnixMilli(),
 		startTime:     time.Now().UnixMilli(),
-		stopCh:        make(chan struct{}),
+		status:        RUNNING,
 	}
 
 	return r
@@ -44,6 +51,7 @@ func (r *TokenBucketRateLimiter) Allow() bool {
 	// Check duration limit if not infinite
 	if !r.infinite {
 		if now-r.startTime >= r.durationMs {
+			r.status = STOPPED
 			return false
 		}
 	}
@@ -73,9 +81,4 @@ func (r *TokenBucketRateLimiter) Allow() bool {
 	r.lastRefill = time.Now().UnixMilli()
 
 	return true
-}
-
-// Stop stops the rate limiter
-func (r *TokenBucketRateLimiter) Stop() {
-	close(r.stopCh)
 }
