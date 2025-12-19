@@ -41,20 +41,19 @@ func (se *StreamEnvironment) FromSource(source operation.Transformation) *datast
 }
 
 func (se *StreamEnvironment) Execute(container *datastream.DataStream) {
-	operators := container.Operators
-	preconditions.CheckNotEmpty(operators, "No transformations in pipeline")
+	preconditions.CheckNotEmpty(container.Operators, "No transformations in pipeline")
 
 	// currently we only support for DIRECT_CHAIN strategy and this loop only chains operator with that
-	for id, operator := range operators {
-		if id+1 < len(operators) {
+	for id, operator := range container.Operators {
+		if id+1 < len(container.Operators) {
 			preconditions.CheckTrue(
-				operator.GetParallelism() == operators[id+1].GetParallelism(),
+				operator.GetParallelism() == container.Operators[id+1].GetParallelism(),
 				"only supporting DIRECT_CHAIN between operators so all operators parallelism must be same")
 		}
 	}
 
 	log.Printf("ignoring operators parallelism using global parallelism %v\n", se.configs.GlobalParallelism)
-	se.runLayers(operators)
+	se.runLayers(container.Operators)
 	log.Printf("Job execution is Finished.")
 }
 
