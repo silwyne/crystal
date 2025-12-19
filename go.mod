@@ -1,6 +1,6 @@
 module github.com/Silwyne/crystal
 
-go 1.23.10
+go 1.25.1
 
 // kafka dependencies
 require (
