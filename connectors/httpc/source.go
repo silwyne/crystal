@@ -17,12 +17,11 @@ type HttpSource struct {
 	method       string
 	headers      map[string]string
 	deserializer HttpDeserializer
-	pollInterval time.Duration
 }
 
 type HttpDeserializer func(*http.Response) (row.Row, error)
 
-func NewHttpSource(url string, method string, headers map[string]string, timeout time.Duration, pollInterval time.Duration, deserializer HttpDeserializer) *HttpSource {
+func NewHttpSource(url string, method string, headers map[string]string, timeout time.Duration, deserializer HttpDeserializer) *HttpSource {
 	source := HttpSource{
 		ctx:          context.Background(),
 		url:          url,
@@ -32,7 +31,6 @@ func NewHttpSource(url string, method string, headers map[string]string, timeout
 		client: &http.Client{
 			Timeout: timeout,
 		},
-		pollInterval: pollInterval,
 	}
 	return &source
 }
