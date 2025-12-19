@@ -1,9 +1,8 @@
 package datagenerator
 
 import (
-	"time"
-
 	"github.com/Silwyne/crystal/api/operation/signal"
+	"github.com/Silwyne/crystal/api/ratelimiter"
 	"github.com/Silwyne/crystal/api/row"
 )
 
@@ -12,6 +11,7 @@ type DataGenerator struct {
 	ratePerSecond  int
 	durationSecond int
 	generator      Generator
+	rateLimiter    ratelimiter.RateLimiter
 }
 
 type Generator func() row.Row
@@ -26,46 +26,39 @@ func NewDataGenerator(infinite bool, ratePerSecond int, durationSecond int, gene
 	if generator == nil {
 		panic("generator can't be nil")
 	}
+
+	// Create rate limiter instance
+	rl := ratelimiter.NewTokenBucketRateLimiter(
+		int64(ratePerSecond),
+		int64(durationSecond),
+		infinite,
+	)
+
 	return &DataGenerator{
 		infinite:       infinite,
 		ratePerSecond:  ratePerSecond,
 		durationSecond: durationSecond,
 		generator:      generator,
+		rateLimiter:    rl,
 	}
 }
 
 func (dg *DataGenerator) Apply(source_channel chan row.Row, result_channel chan row.Row) signal.Signal {
-	base_start_time := time.Now().UnixMilli()
-	duration_millisecond := int64(dg.durationSecond * 1000)
-	round_left := dg.ratePerSecond
-	round_start_time := time.Now().UnixMilli()
+	// Start the rate limiter
+	dg.rateLimiter.Start()
+	defer dg.rateLimiter.Stop()
 
 	for {
+		// Wait for rate limiter to allow next operation
+		if !dg.rateLimiter.Wait() {
+			// Rate limiter returns false when duration is reached or stopped
+			return signal.SUCCESS
+		}
+
+		// Generate and send data
 		generated_row := dg.generator()
 		result_channel <- generated_row
-		round_left--
-
-		if round_left <= 0 {
-			now_time := time.Now().UnixMilli()
-			time_passed := now_time - round_start_time
-			time_left := 1000 - time_passed
-			if time_left > 0 {
-				time.Sleep(time.Duration(time_left) * time.Millisecond)
-			}
-
-			// terminate the process if not set infinite
-			if !dg.infinite {
-				total_time_passed := now_time - base_start_time
-				if total_time_passed >= duration_millisecond {
-					return signal.SUCCESS
-				}
-			}
-
-			round_start_time = time.Now().UnixMilli()
-			round_left = dg.ratePerSecond
-		}
 	}
-
 }
 
 func (dg DataGenerator) IsResultStateless() bool {
