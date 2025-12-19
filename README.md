@@ -5,8 +5,8 @@
 # Overview
 Crystal aims to provide an efficient foundation for stream processing workloads with a focus on:
 - ⚙️ Modular design to support pluggable components
+- 🖥️ Http integration for metric scrapping
 - 📥 Kafka integration for stream input and output
-- ⚡ Fast aggregation and join operations (planned)
 - 🖥️ Currently non-distributed and single-node scale
 
 # Features
@@ -16,10 +16,6 @@ Crystal aims to provide an efficient foundation for stream processing workloads 
 - 🛠️ Lightweight core for efficient stream processing pipelines
 
 # Limitations
-- 🚧 No distributed processing support yet (single-node only)
-- 📈 Does not yet scale horizontally (planned)
+- 🚧 No distributed processing support (single-node only)
+- 📈 Does not yet scale horizontally
 - 🔎 Focus on pipeline correctness and performance before scaling features
-
-# Usage 
-⚠️ Do not use this. It is not ready.  
-Let the chef cook 🍳
