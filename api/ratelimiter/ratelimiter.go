@@ -36,12 +36,15 @@ func NewTokenBucketRateLimiter(ratePerSecond int64, durationSecond int64, infini
 		durationMs:    durationSecond * 1000,
 		infinite:      infinite,
 		tokens:        ratePerSecond,
-		lastRefill:    time.Now().UnixMilli(),
-		startTime:     time.Now().UnixMilli(),
-		status:        RUNNING,
 	}
 
 	return r
+}
+
+func (r *TokenBucketRateLimiter) Start() {
+	r.lastRefill = time.Now().UnixMilli()
+	r.startTime = time.Now().UnixMilli()
+	r.status = RUNNING
 }
 
 // Allow checks if a request can be made according to the rate limit
